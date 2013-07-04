@@ -1,0 +1,114 @@
+% lathese.tex
+% author: Claudia Esteves (but it is inspired from many many documents on the internet)
+% 
+% -------------------------------------------------------------
+% additional files:
+% 		titlepage.tex			Title and School Information
+% 		abstract_en.tex			Abstract
+%		acknowledgements.tex	Acknowledgement
+% 		intro.tex				Introduction
+%		statusquo.tex			State of the Art
+%		representation.tex		Models and notations
+%		eugene.tex	
+%		buran.tex
+%		hrp2.tex
+%		conclusions.tex
+%		lathese.bib		
+% ---------------------------------------------------------------
+
+\documentclass[final]{./styles/lathese}
+
+\TheTitle{Vision-Based Walking for humanoid robots}
+\TheAuthor{Mauricio Josafat Garc\'ia V\'azquez}
+\TheDate{\today}
+\TheAdvisor{Jean-Bernard Hayet}
+\TheGroup{}
+
+
+% Figures 
+\usepackage{floatflt}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{rotating}
+
+%algorithms 
+\usepackage[boxed,algochapter,algoruled,lined]{./styles/algorithm2e}
+
+\usepackage[small,normal,bf,sf]{caption}
+\renewcommand{\captionfont}{\small}
+%\usepackage{appendix}
+
+% Math fonts
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{./styles/manfnt}
+
+\hyphenation{ in-betweens pa-ra-me-ters}
+\hyphenpenalty= 10000
+\tolerance=1000
+\interfootnotelinepenalty=10000
+
+%\bibliographystyle{./styles/acmtrans}
+%\usepackage[colorlinks=true]{hyperref}
+%\usepackage[]{hyperref}
+\usepackage[square]{natbib}
+\bibliographystyle{plainnat}
+
+% Force to include the key in the bibliography list
+\makeatletter
+\def\@lbibitem[#1]#2{%
+\if\relax\@extra@b@citeb\relax\else
+\@ifundefined{br@#2\@extra@b@citeb}{}{%
+\@namedef{br@#2}{\@nameuse{br@#2\@extra@b@citeb}}}\fi
+\@ifundefined{b@#2\@extra@b@citeb}{\def\NAT@num{}}{\NAT@parse{#2}}%
+\item[\hfil\hyper@natanchorstart{#2\@extra@b@citeb}\citep{#2}%
+\hyper@natanchorend]%
+\NAT@ifcmd#1(@)(@)\@nil{#2}}
+\makeatother
+
+%\usepackage[colorlinks=true, citecolor=blue, linkcolor=blue, urlcolor=blue]{hyperref}
+\newcommand\transpose{\top}
+\usepackage{multirow}
+\usepackage[]{geometry}
+
+\begin{document}
+ 
+\newgeometry{top=35mm,bottom=30mm,right=25mm,left=25mm}
+\maketitlepage
+\restoregeometry
+
+\input{./chapters/abstract.tex}
+\makeabstract
+
+\begin{dedication}
+{ {\it a Totoro} }
+\end{dedication}
+
+\input{./chapters/acknowledgements.tex}
+
+\frontmatter
+
+\tableofcontents
+
+\mainmatter
+
+% Introduction
+\input{./chapters/introduction}
+
+% State of the Art
+\input{./chapters/related-work}
+
+% Visual servoing
+\input{./chapters/visual-servoing}
+
+% Using planning
+\input{./chapters/visual-planning}
+
+% 3D reconstruction
+\input{./chapters/3D-reconstruction}
+
+% Conclusions and Future Work
+\input{./chapters/conclusions}
+
+\bibliography{lathese}
+
+\end{document}

@@ -1,0 +1,23 @@
+\begin{picture}(0,0)%
+\includegraphics{figures/config.pdf}%
+\end{picture}%
+\setlength{\unitlength}{1973sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(7162,4054)(1546,-5151)
+\put(8431,-4396){\makebox(0,0)[lb]{\smash{{\SetFigFont{6}{7.2}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$(x^s_p,y^s_p,\theta^s_p)$}%
+}}}}
+\put(4688,-1959){\makebox(0,0)[lb]{\smash{{\SetFigFont{6}{7.2}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$(x^s_q,y^s_q,\theta^s_q)$}%
+}}}}
+\put(2078,-4879){\makebox(0,0)[lb]{\smash{{\SetFigFont{6}{7.2}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf L^s$}%
+}}}}
+\put(6888,-4299){\makebox(0,0)[lb]{\smash{{\SetFigFont{6}{7.2}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$(x,y,\theta)$}%
+}}}}
+\put(7066,-3676){\makebox(0,0)[lb]{\smash{{\SetFigFont{6}{7.2}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\theta^*(x,y)$}%
+}}}}
+\end{picture}%
