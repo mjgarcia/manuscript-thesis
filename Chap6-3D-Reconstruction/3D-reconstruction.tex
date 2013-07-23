@@ -1,0 +1,152 @@
+\chapter{Stereo Reconstruction of Dense Surfaces to Walk on Rough Terrain} 
+\label{Chap:3DReconstruction}
+
+\section{Walking on Rough terrain}
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As we stated in figure \ref{Fig:GeneralDiagram} computer vision can be introduced (from hight to low level) in planning level, pattern generator level or whole-body motion level. In this chapter we will addresse the introduction of computer vision in the lowest level of robot motion generation: The Stack of Tasks (SoT).
+
+The Stack of Tasks is a system that implements the Generalized Inverted Kinematics (GIK). GIK is extensively used to do low level control in highly redundant robots. The SoT uses the notion of task and, moreover the notion of tasks priority. 
+
+Given the current value of the features $\mathbf{s}_i$ and the desired ones $\mathbf{s}^{*}_i$, a task is defined as,
+
+$$
+\mathbf{e}_i = \mathbf{s}_i - \mathbf{s}^{*}_i,
+$$
+
+The relation between the task and the the articular positions of the robot $\mathbf{q}$ is given by
+
+$$
+\dot{\mathbf{e}}_i = \mathbf{J}_i \dot{\mathbf{q}}_i,
+$$
+
+with $\mathbf{J}_i = \dfrac{\partial \mathbf{e}_i}{\partial \mathbf{q}} $. The control law which gives an exponential decay is,
+
+$$
+\dot{\mathbf{q}}_i = - \lambda \mathbf{J}^{+}_i \mathbf{e}_i.
+$$
+
+At dynamic level, the acceleration must be used, in this case the relation is given by,
+
+$$
+\ddot{\mathbf{e}}_i = \dot{\mathbf{J}}_i \dot{\mathbf{q}} + \mathbf{J}_i \ddot{\mathbf{q}}.
+$$
+
+In \cite{} a porposal to walk on rough terrain was presented. It uses an inverse dynamics approach and a 3D reconstruction system to implement a compliant walking scheme. The inverse dynamics control scheme relying on a quadratic programming optimization solver is used to let each foot go from its initial to its final position, controlling also the center of mass and the waist. A 3D model reconstruction of the ground is obtained through the robot cameras located on its head as a stereo vision pair. The model allows the system to know the ground structure where the swinging foot is going to step on. Thus, contact points can be handled to adapt the foot position to the ground conditions.
+
+The inverse dynamics scheme is based in tree tasks: (i) a task for tracking the position of the CoM given by the Pattern Generator, (ii) a task to partially track the waist trajectory, this taks controls the height of the waist as well as its orientation and, (iii) an interpolation task, this task takes the swinging foot from its initial position to its desired final position, the foot reacts in a compliant way if a contact is detected before arriving to the final position on the ground.
+
+The contact points detection is done using a 3D model of the floor in front of the robot. This 3D model comes from a Stereo reconstruction system which will ve explained in more details in next section.
+
+\section{Stereo reconstruction}
+
+To perform the dense reconstruction of the floor surface in front of the robot, we rely on a real-time approach similar to KinectFusion algorithm proposed in~\cite{Newcombe2011}. This approach, originally developed for a RGB-D sensor, models 3-D surfaces as zero-valued level sets of functions defined over the workspace volume. These functions are referred to as truncated signed distance function (TSDF) and they are built incrementally, by integrating the depth measurements the sensor provides, frame after frame. TSDF are defined in the 3D space, and their value is the signed distance to the closest obstacle. Here, we extend this approach, initially proposed for RGB-D depth data, to disparity data generated from a stereo head. Although the stereo data is noisier than the one from RGB-D sensors, it is a passive sensor and can be used outdoors in sunlight conditions.
+
+
+Consider, as in the previous sections, that $k$ is a discretized time index. The idea is to update a mathematical representation of the surface through a volumetric TSDF model (defined over a 3D grid), referred to as $F_k$. The basic steps for integrating one new set of disparity measurements at time $k$, to update $F_k$ and the corresponding surface, are the following ones: (i) Filter the raw depth measurements generated from the stereo head, $D_k$; here we used bilateral filtering for that purpose; (ii) From these filtered measurements and the prediction of the estimated surface at the previous step, estimate the transformation between the measured surface and the predicted one using the iterative closest point algorithm (ICP) and update the camera pose; (iii) Compute a volumetric grid formed from ``local'' TSDF values $F_{D_k}$, to which confidence weights $W_{D_k}$ are associated, and integrate them into the global volumetric grid $\{F_k,W_k\}$; (iv) Predict a new surface for the next iteration by using ray-casting over the zero-crossings of the fused global volumetric grid $\{F_k,W_k\}$. 
+
+To use this algorithm with stereo data and generate local data $D_k$, a disparity map from a pair of rectified images is estimated, from which the depth map $D_k$ is derived, supposing the stereo rig is completely calibrated. The literature of algorithms that estimate disparity maps is huge, but since a real time one is needed for this application, the one proposed in~\cite{Geiger2010} has been used. This algorithm estimates a piece-wise disparity map using an initial sparse disparity map of high textured points as vertices that define a triangulation of the image. Then, the dense disparity map of each sub-region is estimated by using the initial, sparse disparity map as a prior in a probabilistic scheme. The steps of the reconstruction process are illustrated in Fig.~\ref{Fig:Reconstruction}
+
+\subsection{Pre-processing}
+As mentioned above, it is necesary to apply a bilateral filter to the raw depth map to smooth it preserving the borders.
+Then we project the pixel $\mathbf{u}$ to obtain a 3D the point $\mathbf{p}$. With the projection of all the pixels, we generate a vertex map,
+
+\begin{equation}
+ \mathbf{V}_k(\mathbf{u}) = D_k(\mathbf{u})\mathbf{K}^{-1}(\mathbf{u}).
+\end{equation}
+
+Since the depth meassurements is a regular map, we can compute the normal vectors $\mathbf{N}_k(\mathbf{u})$ using the neighbours.
+
+
+
+\subsection{Reconstruction}
+The core of this algorithm is the computation and fusion of volumetric grids (i.e., the third step mentioned above). For a 3D point $\mathbf{p}$ expressed in the global frame $g$, its value in the current local volumetric grid $\{F_{D_k},W_{D_k}\}$ is computed as
+
+$$
+\left\{
+\begin{array}{ccc}
+F_{D_{k}}(\mathbf{p}) &=& \Psi (\lambda^{-1} \left \| \mathbf{t}_{g,k} - \mathbf{p}\right \| - D_k(\mathbf{x})), \\
+W_{D_{k}}(\mathbf{p}) &\propto& \cos(\theta)/D_{k}(\mathbf{x}),
+\end{array}
+\right.
+$$
+
+with
+$$
+\Psi (\eta) =
+\left \{
+\begin{array}{cc}
+\min(1,\frac{\eta}{\mu}) ~\text{sgn}(\eta) & \text{iff} ~ \eta \geq -\mu \\
+\mbox{ null } & \mbox{ otherwise }
+\end{array}
+\right. , ~
+\lambda = \left \| \mathbf{K}^{-1} [\mathbf{x}^\top 1]^\top \right \|,~
+%\lambda = \left \| \mathbf{K}^{-1} \left[ \begin{matrix} \mathbf{x} \\ 1 \end{matrix} \right] \right \|,
+$$
+
+$\mu$ being a truncation distance (parameter of the algorithm), $\mathbf{x} = \pi([\mathbf{K},\mathbf 1] T^{-1}_{g,k} \mathbf{p}) \in \mathbb{R}^2$ being the image projection of $\mathbf p$. $\mathbf{K}$ is the $3\times 3$ matrix of intrinsic parameters of the camera, $\pi$ is the projection operator, $T_{g,k} = \left[ \begin{matrix} \mathbf{R}_{g,k} & \mathbf{t}_{g,k} \\ 0 & 1 \end{matrix} \right]$ the pose of the camera, at time $k$, in the global frame $g$, and $\theta$ the angle between the associated pixel ray direction and the surface normal.
+
+The global volumetric grid at time $k$ is formed by the weighted average of all individual volumetric grids up to $k-1$. It can be shown that the optimal grid can be obtained incrementally using a simple point-wise on-line weighted average,
+
+\begin{eqnarray*}
+ F_k(\mathbf{p}) &=& \frac{W_{k-1}(\mathbf{p}) F_{k-1}(\mathbf{p}) + W_{D_{k}}(\mathbf{p}) F_{D_{k}}(\mathbf{p}) }{ W_{k-1}(\mathbf{p}) + W_{D_{k}}(\mathbf{p}) }, \\
+ W_k(\mathbf{p}) &=& W_{k-1}(\mathbf{p}) + W_{D_{k}}(\mathbf{p}).
+\end{eqnarray*}
+
+\subsection{Surface prediction}
+With the latest reconstruction we can compute a dense surface prediction by rendering the surface at the zero level of the TSDF on a virtual camera with the current estimation of $T_{g,k}$. This process will give us an estimated vertex and normal maps $\hat{\mathbf{V}}_k$ and $\hat{\mathbf{N}}_k$ that ww will use in the camera pose estimation.
+The vertex map is predicted by marching each ray $T_{g,k}K^{-1}\mathbf{u}$ sttoping when a zero crossing ($+\nu e$ to $-\nu e$ for the visible side) is found from visible side to non-visible side indicating surface interface.
+It may find a back face or exit of the working volume so there is no surface measurement in thar cases.
+The normal map is computed as the gradient of the surface interface at $\mathbf{p}$ using numerical derivative:
+\begin{equation}
+ R_{g,k} \hat{\mathbf{N}}_g^k(\mathbf{u}) = \nu \nabla F(\mathbf{p}), \nabla F(\mathbf{p}) = \left [ \frac{\partial F}{\partial x}, \frac{\partial F}{\partial y}. \frac{\partial F}{\partial z} \right ]^T
+\end{equation}
+further this derivative is scaled.
+
+For the marching ray skipping which provides useful acceleration is used. This is done by marching along the ray in steps of size $< \mu$ while values of $F(\mathbf{p})$ have $+ \nu e$ truncated values so a step $\mu$ must pass at least one non-truncated value before stepping over the zero crossing.
+Then to refine the intersection we take $F^+_t$ and $F^+_{t+\Delta t}$ wich are the triliniearly interpolated values either side of the zero crossing along the ray $t$ and $t+\Delta t$ from its starting point.
+Then the parameter at wich the intersection occurs more precisely is computed,
+
+\begin{equation}
+t^* = t - \frac{\Delta t F^+_t}{F^+_{t+\Delta t} - F^+_t}
+\end{equation}
+
+so we have a vexter and normal maps in the interpolated point in the global frame.
+
+\subsection{Sensor pose estimation}
+
+The tracking is done by aligning the current surface meassurement ($\mathbf{V}_k$,$\mathbf{N}_k$) against the model predicted from the previous frame ($\hat{\mathbf{V}}_{k-1}$,$\hat{\mathbf{N}}_{k-1}$).
+In fist place, projective data association algorithm is used to get a set of vetex correspondences $\{ \mathbf{V}_k(\mathbf{u}), \hat{\mathbf{B}}_{k-1}(\hat{\mathbf{u}}) \mid \Omega(\mathbf{u}) \neq null \}$ by computing the perspectively projected point $\hat{\mathbf{u}} = \pi(K \tilde{T}_{k-1.k} \dot{\mathbf{V}}_k(\mathbf{u}))$ using an estimate of the frame transform and testing the predicted and meassured vertex and normal for compatibility.
+
+An iterative solution $\tilde{T}^z_{g,k}$ is obtained by minimizing a linealized version of the global point-plane energy around the previous estimate $\tilde{T}^{z-1}_{g,k}$. Using the small angle asumption for an incremental tranform $\tilde{T}^z_{inc}$ the update is $\tilde{T}^z_{g,k} = \tilde{T}^z_{inc}\tilde{T}^{z-1}_{g,k}$.
+The minimization is done using the incremental point transfer $\tilde{\mathbf{V}}^g_k(\mathbf{u}) = \tilde{T}^{z-1}_{g,k} \dot{\mathbf{V}}_k(\mathbf{u})$. 
+Arranging the parameters of the transformation as $ \mathbf{x} = (\beta,\gamma,\alpha,t_x,t_y.t_z)^T$ we can write
+\begin{equation}
+\tilde{T}^z_{g,k} \dot{\mathbf{V}}_k(\mathbf{u}) = \tilde{R}^z \tilde{\mathbf{V}}^g_k(\mathbf{u}) + \tilde{\mathbf{t}}^z = \mathbf{G}(\mathbf{u})\mathbf{x} + \tilde{\mathbf{V}}^g_k(\mathbf{u}).
+\end{equation}
+
+An iteration is obtained by solving
+
+\begin{equation}
+\underset{\mathbf{x} \in  \mathbb{R}^6 }{min} \sum_{\Omega_k (\mathbf{u}) \neq null} \left \| E \right \|^2_2
+\end{equation}
+
+\begin{equation}
+ E = \tilde{\mathbf{N}}^g_{k-1}(\mathbf{u})^T \left( \mathbf{G}(\mathbf{u})\mathbf{x} + \tilde{\mathbf{V}}^g_k(\mathbf{u}) - \hat{\mathbf{V}}^g_{k-1}(\hat{\mathbf{u}}) \right)
+\end{equation}
+
+The minimum can be found analitically by derivating the objective function and setting to zero, a $6 \times 6$ symmetric linear system is generated for each correspondence. Solving for $\mathbf{x}$ we obtain $\tilde{T}^z_{g,k}$.
+The data association and pose estimation is embedded into a coarse to fine framework using the bottom 3 levels of the vertes and normal maps pyramid, the camera pose results of the last iteration.
+
+\section{Results}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.17]{Chap6-3D-Reconstruction/right0001}
+\hspace{0.2cm}
+\includegraphics[scale=0.17]{Chap6-3D-Reconstruction/left0001_disp}
+\hspace{0.2cm}
+\includegraphics[scale=0.22]{Chap6-3D-Reconstruction/snapshot02}
+\caption[]{From a pair of images of the scene in front of the robot (left) we estimate a dense disparity map (middle) and from this disparity map we estimate a dense surface integrating the previous frames into the volumetric grid.}
+\label{Fig:Reconstruction}
+\end{figure}

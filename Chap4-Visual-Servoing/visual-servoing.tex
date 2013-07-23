@@ -1,11 +1,6 @@
 \chapter{Visual servoing} 
 \label{Chap:Visual-Servoing}
 
-
-\section{Visual servoing and MPC}
-
-\label{sec:vs}
-
 Visual servoing aims at controlling the motion of a robot equipped with a camera, by minimizing errors between observed features and their corresponding reference features. The nature of the features differentiates schemes of visual servoing: Image based visual servoing (IBVS) uses only image features; Position based visual servoing (PBVS) uses the 3-D pose(s) of object(s) of interest. In any of these cases of feedback, one may use a velocity controller such as
 
 $$
@@ -14,9 +9,29 @@ $$
 
 where $e$ is the vector of errors, $\text{v}^c$ is the velocity of the camera and $L_e^{+}$ is the Moore-Penrose pseudo-inverse of the interaction matrix $L_e$, that is, the matrix relating the velocity of the features and the velocity of the camera.
 
-Now, in walking pattern generation (see Section~\ref{sec:wpg}), MPC is used to estimate a sequence of optimal controls at some horizon, because of the step-based nature of walking. Hence, we want to orient the optimization of the foot placement by taking into account the expected evolution of the visual servoing (VS) errors so that, instead of minimizing the VS errors at current time $k$, one would like to foresee its evolution at some horizon $[k+1,k+N]$. 
+\section{Control Using a velocity reference}
+\label{Sec:ClassicalVS}
 
-In~\cite{Allibert2010}, such a time horizon-aware scheme has been proposed. The visual predictive control (VPC) is introduced as:
+Due to the nature of the walking, sway motion is induced in the features trajectories. It was proposed in \citep{DuneIROS2010} to model de velocities of the features as a sum of a DC component and an oscilation conponent due to sway,
+
+\begin{equation}
+\dot{s}={\widehat{L}}\overline{\dot{k}}+{\widehat{L}} ^{k}V_{c}{\dot{b}}.
+\end{equation}
+
+With this model of the velocity of the features the CoM reference velocity can be computed as :
+\begin{equation} 
+\overline{\dot{c}}= -\lambda{ ^{c}V_{k}{\widehat{L}}^{+}}(e -  (\int_{0}^{t}{\widehat{L}} ^{k}V_{c}\dot{b}dt -\int_{t-T}^t\int_0^t{\widehat{L}} ^{k}V_{c}\dot{b}dt)).
+\label{eq:avControlCom} 
+\end{equation} 
+
+This reference velocity can be directly injected in the Velocity Controlled Pattern Generator introduced in previoous section. However this approach has several drawbacks. First, the control law will never be executed as is. Second, to get equation \ref{eq:avControlCom} they make several supossitions, wich sometimes are not true. And third, since the PG a and the servo controller are totally decoupled, the visual feedback has to wait to the next iteration to be introduced in the PG. In order to solve this problems, we will present in next section a Visual Servo controller which will be directly intrduced in the Pattern Generator.
+
+\section{Visual servoing and MPC}
+\label{sec:vs}
+
+As we knowm, in walking pattern generation, MPC is used to estimate a sequence of optimal controls at some horizon, because of the step-based nature of walking. Hence, we want to orient the optimization of the foot placement by taking into account the expected evolution of the visual servoing (VS) errors so that, instead of minimizing the VS errors at current time $k$, one would like to foresee its evolution at some horizon $[k+1,k+N]$. 
+
+In~\citep{Allibert2010}, such a time horizon-aware scheme has been proposed. The visual predictive control (VPC) is introduced as:
 
 \begin{eqnarray}
 \label{Eq:MinVisualFeatures}
@@ -51,86 +66,6 @@ with $S^m_{l,k}$ stacking the features positions in the horizon: $S^m_{l,k} =  \
  \dots,
   s^m_{l,k+N}
  \right)^{\transpose}$, $S^d_{l}$ stacking the corresponding desired positions, and $W = diag(w_{k+1},w_{k+2},...,w_{k+N})$.
-
-\section{Walking pattern generation}
-
-\label{sec:wpg}
-
-Most of the current walking motion generation schemes for humanoid robots are based on the model proposed in~\cite{Kajita2003}, that focuses in the trajectory of the center of mass to generate balanced and stable motions. If we suppose that the trajectory has periodic piece-wise constant jerks on a time interval $T$, we can express the CoM dynamics on the $x$-axis as
-
-$$
-\left\{
-\begin{array}{ccc}
- \hat{x}_{k+1} &=& A \hat{x}_k + B \dddot{x}_k\\
- \xi^x_{k} &=& C \hat{x}_k 
-\end{array}
-\right.
-$$
-
-where $\hat{x}_{k} = \left( x_k, \dot{x}_k, \ddot{x}_k \right)^{\transpose}$ stacks the $x-$position, 
-velocity and acceleration of the robot CoM at time $k$, and
-
-\begin{equation*}
-A = \left(
-\begin{matrix}
-1 & T & T^2/2 \\
-0 & 1 & T \\
-0 & 0 & 1
-\end{matrix}
-\right) \text{, }
-B = \left(
-\begin{matrix}
-T^3/6 \\
-T^2/2 \\
-T
-\end{matrix}
-\right) \text{ and }
-C = \left(
-\begin{matrix}
-1 \; 0 \; \frac{c_z}{g} \\
-\end{matrix}
-\right)
-\end{equation*}
-
-and ${\xi}^x_k$ is the CoP at time $k$.
-By applying recursively the dynamics, we can express the trajectory of the CoM in terms of the initial position $\hat{x}_k$ and the sequence of jerks $\dddot{X}_k = (\dddot{x}_k, \dddot{x}_{k+1},...,\dddot{x}_{k+N-1})^{\transpose}$,
-
-\begin{equation}
- \label{Eq:PosCMHorizon}
- X_{k+1} = \left(
- \begin{matrix}
-  x_{k+1} \\
-  \vdots \\
-  x_{k+N}
- \end{matrix}
- \right) = P_{ps} \hat{x}_k + P_{pu} \dddot{X}_k.
-\end{equation}
-
-Similar expressions can be obtained for the velocity and acceleration of the CoM, and for the $y$ component.
-
-In the original approach~\cite{Kajita2003}, the positions of the center of pressure (CoP) must be predefined, so preliminary footstep planning was necessary. Later on, an interesting re-formulation was proposed to handle automatic footstep placement~\cite{HerdtAR2010}. This approach makes use of a reference velocity $(\dot{X}_{k+1}^{ref},\dot{Y}_{k+1}^{ref})$ and the resulting constrained optimization problem is:
-
-{\scriptsize
-\begin{eqnarray}
-\label{Eq:MinJerk}
-\nonumber
- \underset{U_{k}}{\min} \; && \dfrac{\alpha}{2} \left\| \dddot{X}_k \right\|^2 + \dfrac{\beta}{2} \left\| \dot{X}_{k+1} - \dot{X}_{k+1}^{ref} \right\|
- + \dfrac{\gamma}{2} \left\| Z_{k+1}^x - Z_{k+1}^{x_{ref}} \right\| \\
- && + \dfrac{\alpha}{2} \left\| \dddot{Y}_k \right\|^2 + \dfrac{\beta}{2} \left\| \dot{Y}_{k+1} - \dot{Y}_{k+1}^{ref} \right\|
- + \dfrac{\gamma}{2} \left\| Z_{k+1}^y - Z_{k+1}^{y_{ref}} \right\|,
-\end{eqnarray}
-}
-with $U_{k} \stackrel{\mbox{\tiny def}}{=}  \left( \dddot{X}^{\transpose}_k, (X_k^f)^{\transpose}, \dddot{Y}^{\transpose}_k, (Y_k^f)^{\transpose} \right)^{\transpose}$, and
- $X^f_k, Y^f_k$ are the footsteps positions, now taken as additional variables. 
-We also define the vector of CoP values on the horizon as $Z_{k+1}^x = [ {\xi}^x_{k+1} \; \cdots \; {\xi}^x_{k+N}]$. 
-The reference values $Z_{k+1}^{x_{ref}}$ are the center of the support polygon at each iteration.
-This can be written as a canonical Quadratic Program (QP) 
-
-\begin{equation*}
- \underset{U_k}{\min} \; \dfrac{1}{2} U_k^{\transpose} Q_k U_k + p_k^{\transpose} U_k.
-\end{equation*}
-
-The objective of our approach and the main contribution of this paper is that instead of controlling the robot through the references velocities, it is realized using visual features. At the end, our approach summarizes in replacing the reference velocities in Eq. \ref{Eq:MinJerk} by Eq. \ref{Eq:MinVisualFeatures2}. We would also want to keep the problem as a QP so it can be solved efficiently in real time.
 
 \section{Integrating the visual servoing to the walking motion generator}
 \label{sec:integration}
@@ -167,7 +102,6 @@ As we said, Eq. \ref{Eq:ConstraintProjection} implements the pinhole camera mode
 
 where $T^{wm}_j$ is the transformation from the world frame to the CoM frame and $T^{mc}$ is the transformation from the CoM frame to the camera frame, which is not variable in our approach. Note that
 
-{\small
 $$
 T^{wm}_j = (T^{mw}_j)^{-1} = 
 \left(
@@ -177,7 +111,6 @@ T^{wm}_j = (T^{mw}_j)^{-1} =
 \end{matrix}
 \right)
 $$ 
-}
 
 where $t^{mw}_j$ is the position of the CoM in the world frame at time $j$, which depends in our control variables through Eq. \ref{Eq:PosCMHorizon}.
 $R^{mw}_j$ is the direction of the robot waist according to the world reference frame at time $j$. In our current formulation 
@@ -222,10 +155,10 @@ $$
 \begin{array}{c}
 %\label{Eq:ProjectionTaylorApproxU}
 \nonumber
- u(x_0+dx,y_0+dy,z_0+dz) \approx \frac{x_0}{z_0} +  \frac{dx}{z_0} - \frac{x_0 dz}{z_0^2},\\
- v(x_0+dx,y_0+dy,z_0+dz) \approx \frac{y_0}{z_0} +  \frac{dy}{z_0} - \frac{y_0 dz}{z_0^2}.
+ u(x_0+dx,y_0+dy,z_0+dz) \approx \dfrac{x_0}{z_0} +  \dfrac{dx}{z_0} - \dfrac{x_0 dz}{z_0^2},\\ \\
+ v(x_0+dx,y_0+dy,z_0+dz) \approx \dfrac{y_0}{z_0} +  \dfrac{dy}{z_0} - \dfrac{y_0 dz}{z_0^2}.
 \end{array}
-\right.,
+\right.
 $$
 
 with $dx=x-x_0$, $dy=y-y_0$ and $dz=z-z_0$. 
@@ -360,12 +293,10 @@ Finally, we can introduce visual servoing in the walking generation with the QP:
 \end{eqnarray*}
 
 and as a canonical QP:
-{\small
 \begin{equation*}
 \underset{U_k}{\min} \; \dfrac{1}{2} U_k^{\transpose} Q_k U_k + p_k^{\transpose} U_k
 \end{equation*}
-}
-{\small
+
 \text{ with }
 \begin{equation*}
 Q_k = \left( \begin{array}{cc}
@@ -374,9 +305,7 @@ Q_k' & 0 \\
 \end{array}
  \right) + \hat{Q}_k,
 \end{equation*}
-}
 
-{\scriptsize
 \begin{equation*}
  Q_k' = \left(
  \begin{array}{cc}
@@ -385,9 +314,7 @@ Q_k' & 0 \\
  \end{array}
  \right),
 \end{equation*}
-}
 
-{\scriptsize
 \begin{equation*}
  \hat{Q}_k = \left(
  \begin{matrix}
@@ -398,11 +325,9 @@ Q_k' & 0 \\
  \end{matrix}
  \right)
 \end{equation*}
-}
 
 and $p_k = p_k' + \hat{p}_k$,
 
-{\scriptsize
 \begin{equation*}
  p'_k = 
  \left(
@@ -414,9 +339,7 @@ and $p_k = p_k' + \hat{p}_k$,
  \end{array}
  \right),
 \end{equation*}
-}
 
-{\scriptsize
 \begin{equation*}
  \hat{p}_k = 
  \left(
@@ -428,7 +351,6 @@ and $p_k = p_k' + \hat{p}_k$,
  \end{matrix}
  \right).
 \end{equation*}
-}
 
 For details on matrices $P_{ps}$, $P_{zs}$, $P_{pu}$, $P_{zu}$, $V_{k+1}$ and $V_{k+1}^c$ see~\cite{HerdtAR2010}.
 
@@ -487,15 +409,15 @@ We tested our approach in a simulated environment with the NAO robot model and w
 \begin{figure*}[ht]
  \centering
   \subfigure[]{
- \includegraphics[scale=.46]{figures/steps1.pdf}
+ \includegraphics[scale=.8]{Chap4-Visual-Servoing/steps1.pdf}
  \label{Fig:Results1a}
  }
  \subfigure[]{
- \includegraphics[scale=.27]{figures/features1.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/features1.pdf}
  \label{Fig:Results1b}
  }
  \subfigure[]{
- \includegraphics[scale=.27]{figures/velocities1.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/velocities1.pdf}
  \label{Fig:Results1c}
  }
  \caption[]{\label{Fig:Results1}\small{In~\ref{Fig:Results1a}, we show the trajectory of the robot in the $x,y$ plane. The initial and final double stance phases appear in green. The single stance support feet appear in red (resp. blue) for the right (resp. left) foot. In pink, we depicted the CoP trajectory, which can be observed to remain safely in the support polygon, and in light blue the CoM trajectory. In \ref{Fig:Results1b}, we depict (in blue) the trajectory of the features in the image, with the initial positions in red and the desired positions in pink, for the first simulation.  Finally, the evolution of the velocities is shown in \ref{Fig:Results1c}. It is interesting to note the offset of the oscillatory velocity in $x$ and $y$ due to the features errors.}}
@@ -505,15 +427,15 @@ We tested our approach in a simulated environment with the NAO robot model and w
 \begin{figure*}[ht]
  \centering
   \subfigure[]{
- \includegraphics[scale=.46]{figures/steps2.pdf}
+ \includegraphics[scale=.8]{Chap4-Visual-Servoing/steps2.pdf}
  \label{Fig:Results2b}
  }
  \subfigure[]{
- \includegraphics[scale=.27]{figures/features2.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/features2.pdf}
  \label{Fig:Results2a}
  }
  \subfigure[]{
- \includegraphics[scale=.27]{figures/velocities2.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/velocities2.pdf}
  \label{Fig:Results2c}
  }
  
@@ -531,15 +453,15 @@ Now we evaluate the trajectory with rotation. We recall that the rotation veloci
 \begin{figure*}[ht]
  \centering
   \subfigure[]{
- \includegraphics[scale=.46]{figures/steps3.pdf}
+ \includegraphics[scale=.8]{Chap4-Visual-Servoing/steps3.pdf}
  \label{Fig:Results3b}
  }
  \subfigure[]{
- \includegraphics[scale=.27]{figures/features3.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/features3.pdf}
  \label{Fig:Results3a}
  }
  \subfigure[]{
- \includegraphics[scale=.27]{figures/velocities3.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/velocities3.pdf}
  \label{Fig:Results3c}
  }
  \caption[]{\label{Fig:Results3}\small{The behavior of our system in the third simulation, involving rotation, with the same graphical conventions as in Fig.~\ref{Fig:Results1}. The robot is walking in the sagittal direction most of the time, after an initial rotation. The amplitude of the oscillation of the CoM and subsequently of the features are smaller than in the first simulation. However, we can see a non-negligible component of velocity in the positive $y$ direction, since the angle is not fully compensated. When the angle is almost fully compensated, this component disappears.}}
@@ -548,15 +470,15 @@ Now we evaluate the trajectory with rotation. We recall that the rotation veloci
 \begin{figure*}[ht]
  \centering
  \subfigure[]{
- \includegraphics[scale=.46]{figures/steps4.pdf}
+ \includegraphics[scale=.8]{Chap4-Visual-Servoing/steps4.pdf}
  \label{Fig:Results4a}
  }
   \subfigure[]{
- \includegraphics[scale=.27]{figures/velocities4.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/velocities4.pdf}
  \label{Fig:Results4b}
  }
  \subfigure[]{
- \includegraphics[scale=.27]{figures/objective4.pdf}
+ \includegraphics[scale=.35]{Chap4-Visual-Servoing/objective4.pdf}
  \label{Fig:Results4c}
  }
  \caption[]{\label{Fig:Results4}\small{The behavior of our system in the fourth simulation, with the same graphical conventions as in Fig.~\ref{Fig:Results1}. The robot is following a trajectory similar to the one of Fig.~\ref{Fig:Results3}. After a few footsteps, a strong perturbation is applied to the CoM, inducing a peak in the velocities graph (Fig.~\ref{Fig:Results4b}) and in the cost function value (Fig.~\ref{Fig:Results4c}). The perturbation is quasi-instantly recovered.}}
@@ -567,7 +489,7 @@ We have already explained how a local linearization is made to maintain the QP f
 \begin{figure}[ht]
  \centering
  %\subfigure[]{
- \includegraphics[scale=.6]{figures/comparison_linearization.pdf}
+ \includegraphics[scale=1]{Chap4-Visual-Servoing/comparison_linearization.pdf}
  %\label{Fig:Results2a}
  %}
  % \subfigure[]{
@@ -582,11 +504,11 @@ Due to the walking nature, we have oscillations in the features trajectories. If
 \begin{figure}[ht]
  \centering
  \subfigure[]{
- \includegraphics[scale=.23]{figures/instantaneus_errors.pdf}
+ \includegraphics[scale=.6]{Chap4-Visual-Servoing/instantaneus_errors.pdf}
  \label{Fig:Results6a}
  }
   \subfigure[]{
- \includegraphics[scale=.23]{figures/horizon_errors.pdf}
+ \includegraphics[scale=.6]{Chap4-Visual-Servoing/horizon_errors.pdf}
  \label{Fig:Results6b}
  }
  \caption[]{\label{Fig:Results6}\small{Evolution of the errors for the $u,v$ components of each feature, in the second simulation. In \ref{Fig:Results6a}, we depict the instantaneous errors along time, and in \ref{Fig:Results6b}, we depict the errors estimated in the horizon (i.e. individual terms of Eq.~ \ref{Eq:MinVisualFeatures2}, normalized by the size of the horizon). Observe that the sway motion of the robot induces oscillations of the $v$ components in the instantaneous errors, and that these oscillations are not present in the errors estimated in the horizon window.}}

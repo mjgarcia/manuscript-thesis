@@ -1,0 +1,209 @@
+
+\chapter{Locomotion Control} 
+\label{Chap:Locomotion-Control}
+
+\section{The Linearized Inverted Pendulum Model and Model Predictive Control}
+Most of the works in biped walking are based on the simplified model porpossed by Kajita et al. in 1992 \citep{Kajita1992}. This model simplifies the multy-body nature of the robot considering it as an inverted pendulum. It also constraits the trajectory of the CoM of the inverted pendulum to a horizontal plane. This model is equivalent to the cart-table model, see Fig.~\ref{Fig:Inverted-Pendulum-Cart-Table}. This give us the Zero Moment Point (ZMP) \citep{Vukobratovi1972,Vukobratovi2004} equations
+
+\begin{equation}
+\mathbf{Z} = 
+\left[
+\begin{matrix}
+p_x \\ p_y
+\end{matrix}
+\right] = 
+\left[
+\begin{matrix}
+c_x - \frac{c_z}{g}\ddot{C}_x \\ c_y - \frac{c_z}{g}\ddot{C}_y
+\end{matrix}
+\right]
+\end{equation}
+
+\begin{figure}
+  \centering
+      {\def\svgwidth{0.5\columnwidth}
+        \subimport*{Chap3-Locomotion-Control/}
+                   {robot-cart-table1.pdf_tex}}
+      \caption[]{}
+      \label{Fig:Inverted-Pendulum-Cart-Table}
+\end{figure}
+
+From the  work of \citep{Kajita2003}, if we suppose that the trajectory has periodic piece-wise constant jerks on a time interval $T$, we can express the CoM dynamics on the $x$-axis as
+
+$$
+\left\{
+\begin{array}{ccc}
+ {\mathbf c}_x(k+1) &=& {\mathbf A} {\mathbf c}_x(k) + {\mathbf B} \dddot{c}_x(k)\\
+ p_x(k) &=& {\mathbf C} {\mathbf c}_x(k)
+\end{array}
+\right.
+$$
+
+where ${\mathbf c}_x(k) = \left[ c_x(k), \dot{c}_x(k), \ddot{c}_x(k) \right]^{\transpose}$ stacks the $x-$position, velocity and acceleration of the robot CoM, $p_x(k)$ is the CoP at time $k$,
+
+\begin{equation*}
+{\mathbf A} = \left(
+\begin{matrix}
+1 & T & T^2/2 \\
+0 & 1 & T \\
+0 & 0 & 1
+\end{matrix}
+\right) \text{, }
+{\mathbf B} = \left(
+\begin{matrix}
+T^3/6 \\
+T^2/2 \\
+T
+\end{matrix}
+\right) \text{ and }
+{\mathbf C} = \left(
+\begin{matrix}
+1 \; 0 \; \dfrac{c_z}{g} \\
+\end{matrix}
+\right).
+\end{equation*}
+
+To solve this control system eficiently it was proposed to use Model Predictive Control (MPC). MPC takes into account future information by previewing the behavior of the system for a given horizon. Then the an optimization problem is formulated using a performance index,
+
+\begin{equation}
+\min_{u_k} \sum\limits_{i=k}^{k+N_L - 1} \frac{1}{2} Q (p_x(i+1) - p_x^{ref}(i+1))^2 + \frac{1}{2}R\dddot{c}_x^2(i),
+\end{equation}
+
+the optimal controller is given by,
+
+\begin{equation}
+\dddot{c}_x(k) = -K_1 \sum\limits_{i=0}^{k} e(i)-K_2c_x(k) - \sum\limits_{j=1}^{N_L} K_p(j)p^{ref}(k+j)
+\end{equation}
+
+with $e(i) = p_x(i) - p_x^{ref}(i)$, and $K_1$, $K_2$ and $K_p(j)$ are gains.
+
+Kajita et al. also proposed a second step to correct the effects of the inverted pendulum simplification. This second step takes into account the multy-body dynamics and is reinjected to have a better CoM and ZMP trajectories.
+
+\section{Quadratic Programming and Automatic footstep placement}
+
+Wieber in \citep{WieberHumanoids2006} porposed to reformulate the preview control problem as a Quadratic Programming Poblem. By applying recursively the dynamics, we can express the position, velocity and acceleration  of the CoM in terms of the initial state ${\mathbf c}_x(k)$ and the sequence of jerks $\dddot{\mathbf C}_x(k) = \left[ \dddot{c}_x(k), \dddot{c}_x(k+1),...,\dddot{c}_x(k+N-1) \right]^{\transpose}$,
+
+\begin{equation}
+ \label{Eq:PosCMHorizon}
+ {\mathbf C}_x(k+1) = \left(
+ \begin{matrix}
+  c_x(k+1) \\
+  \vdots \\
+  c_x(k+N-1)
+ \end{matrix}
+ \right) = {\mathbf S}_p {\mathbf c}_x(k) + {\mathbf U}_p \dddot{\mathbf C}_x(k),
+\end{equation}
+
+\begin{equation}
+ \label{Eq:PosCMHorizon}
+ \dot{\mathbf C}_x(k+1) = \left(
+ \begin{matrix}
+  \dot{c}_x(k+1) \\
+  \vdots \\
+  \dot{c}_x(k+N-1)
+ \end{matrix}
+ \right) = {\mathbf S}_v {\mathbf c}_x(k) + {\mathbf U}_v \dddot{\mathbf C}_x(k),
+\end{equation}
+
+\begin{equation}
+ \label{Eq:PosCMHorizon}
+ \ddot{\mathbf C}_x(k+1) = \left(
+ \begin{matrix}
+  \ddot{c}_x(k+1) \\
+  \vdots \\
+  \ddot{c}_x(k+N-1)
+ \end{matrix}
+ \right) = {\mathbf S}_a {\mathbf c}_x(k) + {\mathbf U}_a \dddot{\mathbf C}_x(k),
+\end{equation}
+
+Similar expressions can be obtained for the $y$ component. We can also express the ZMP trajectory
+
+\begin{equation}
+ \label{Eq:PosCMHorizon}
+ {\mathbf Z}_x(k+1) = \left(
+ \begin{matrix}
+  {z}_x(k+1) \\
+  \vdots \\
+  {z}_x(k+N-1)
+ \end{matrix}
+ \right) = {\mathbf S}_z {\mathbf c}_x(k) + {\mathbf U}_z \dddot{\mathbf C}_x(k).
+\end{equation} 
+
+This allow us to rewrite the optimization problem as,
+
+\begin{eqnarray}
+\nonumber
+\underset{\dddot{\mathbf{C}}(k)}{\min} ~~ \dfrac{1}{2} R \dddot{\mathbf{C}}^2(k) + \dfrac{1}{2} Q (\mathbf{Z}_x(k+1) - \mathbf{Z}^{ref}_x(k+1))^2,
+\label{Eq:MinJerk}
+\end{eqnarray}
+ 
+which has the analitical solution
+
+\begin{equation}
+\dddot{\mathbf{C}}_x(k) = -(\mathbf{U}_z^{\top} \mathbf{U}_z + \dfrac{R}{Q} \mathbf{I}_{N \times N})^{-1} \mathbf{U}_z^{\top}(\mathbf{S}_z \mathbf{c}_x(k) - \mathbf{Z}_x^{ref}(k)).
+\end{equation}
+
+As an evolution of this work, where the footsteps positions (and, correspondingly, the CoP positions) are fed to the pattern generation, the work of~\cite{HerdtAR2010} introduced automatic footstep planning, and reduced the necessary input to a simple stack of reference velocities $(\dot{X}_{k+1}^{ref},\dot{Y}_{k+1}^{ref})$. This leads to the optimization problem:
+
+\begin{eqnarray}
+\nonumber
+ \underset{U_{k}}{\min} \; && \dfrac{\alpha}{2} \left\| \dddot{C}_k^{x} \right\|^2 + \dfrac{\beta}{2} \left\| \dot{C}_{k+1}^{x} - \dot{X}_{k+1}^{ref} \right\|^2
+ + \dfrac{\gamma}{2} \left\| Z_{k+1}^x - Z_{k+1}^{x\_{ref}} \right\|^2 \\
+ && + \dfrac{\alpha}{2} \left\| \dddot{C}_k^{y} \right\|^2 + \dfrac{\beta}{2} \left\| \dot{C}_{k+1}^{y} - \dot{Y}_{k+1}^{ref} \right\|^2
+ + \dfrac{\gamma}{2} \left\| Z_{k+1}^y - Z_{k+1}^{y\_{ref}} \right\|^2
+\label{Eq:MinJerk}
+\end{eqnarray}
+
+with the variables to optimize kept in the vector 
+
+$$
+U_{k} \stackrel{\mbox{\tiny def}}{=} 
+\left(
+\begin{matrix}
+\dddot{C}_k^{x} \\
+X_{k}^{f} \\
+\dddot{C}_k^{y} \\
+Y_{k}^{f}
+\end{matrix}
+\right)
+$$
+
+The ZMP references $Z_{k+1}^{x\_{ref}},Z_{k+1}^{y\_{ref}}$ depend linearly on the variables $X_{k}^{f},Y_{k}^{f}$ which are the position of the next footsteps in the horizon.
+
+As the sequence of CoP positions $Z_{k+1}^x = [ {\xi}^x_{k+1} \; \cdots \; {\xi}^x_{k+N}]$ is linear in the variables to optimize (from Eq.~\ref{Eq:dynamic}), the problem is a Quadratic Program (QP) 
+
+\begin{equation}
+ \underset{U_k}{\min} \; \dfrac{1}{2} U_k^{\transpose} Q_k U_k + p_k^{\transpose} U_k,
+\label{Eq:QP}
+\end{equation}
+
+under linear constraints arising, among others, from the inclusion of the CoP inside the support polygon~\cite{HerdtAR2010}.
+
+As we said, the ZMP references are not fixed in advanced but are permanently recomputed from the feet position decided by the algorithm so that the ZMP lies in the middle of the foot. Let $(X_k^{fc},Y_k^{fc})$ be the current position of the foot on the ground. Then, the ZMP references are given by:
+\begin{align}
+  Z^{x\_ref}_{k+1} & = U^{c}_{k+1} X_k^{fc} + U_{k+1} X_k^f \\
+  Z^{y\_ref}_{k+1} & = U^{c}_{k+1} Y_k^{fc} + U_{k+1} Y_k^f 
+\end{align}
+where
+\begin{equation*}
+   U^c_{k+1} = \begin{bmatrix}1 \\ \vdots \\ 1 \\ 0 \\ \vdots \\ 0 \\ 0 \\ \vdots \\ 0  \end{bmatrix} \qquad
+   U_{k+1} = \begin{bmatrix} 0 & 0 & 0 & \cdots & 0 \\ \vdots & \vdots
+     & \vdots & \ddots\\ 
+                                           0 & 0 & 0 & \cdots & 0\\
+                           1 & 0 & 0 & \cdots & 0 \\ \vdots & \vdots &
+                           \vdots &
+                           \ddots \\ 1 & 0 & 0 &\cdots &0\\
+                           0 & 1 & 0 & \cdots & 0\\ \vdots & \vdots &
+                           \vdots & \ddots \\ 0 & 1 & 0 & \cdots &0\end{bmatrix}
+\end{equation*}
+
+are selection matrices that indicates which sampling time falls in which step.
+
+During the single support phase, the constraint ensuring that the ZMP remains inside the support polygon is expressed as:
+\begin{equation}
+  \begin{bmatrix} d_x(\theta) & d_y(\theta) \end{bmatrix}
+  \begin{bmatrix} z^x - x^f \\ z^y - y^f \end{bmatrix} \leq b(\theta)
+\end{equation}
+where $(x^f,y^f)$ is the foot position, $\theta$ is its orientation,
+$d_x(\theta)$, $d_y(\theta)$ are column vectors containing the $x$,
+$y$ coordinates of the normal vectors to the feet edges, and $b(\theta)$  is the column vector containing their position with a security margin.

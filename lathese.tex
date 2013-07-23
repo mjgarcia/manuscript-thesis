@@ -18,9 +18,9 @@
 
 \documentclass[final]{./styles/lathese}
 
-\TheTitle{Vision-Based Walking for humanoid robots}
+\TheTitle{Locomoci\'on Basada en Visi\'on para Robots Humanoides}
 \TheAuthor{Mauricio Josafat Garc\'ia V\'azquez}
-\TheDate{\today}
+\TheDate{16 de Septiembre de 2013}
 \TheAdvisor{Jean-Bernard Hayet}
 \TheGroup{}
 
@@ -36,7 +36,7 @@
 
 \usepackage[small,normal,bf,sf]{caption}
 \renewcommand{\captionfont}{\small}
-%\usepackage{appendix}
+\usepackage{import}
 
 % Math fonts
 \usepackage{amsmath,amsfonts,amssymb}
@@ -76,14 +76,14 @@
 \maketitlepage
 \restoregeometry
 
-\input{./chapters/abstract.tex}
+\input{abstract.tex}
 \makeabstract
 
 \begin{dedication}
 { {\it a Totoro} }
 \end{dedication}
 
-\input{./chapters/acknowledgements.tex}
+\input{acknowledgements.tex}
 
 \frontmatter
 
@@ -92,22 +92,25 @@
 \mainmatter
 
 % Introduction
-\input{./chapters/introduction}
+\input{Chap1-Introduction/introduction}
 
 % State of the Art
-\input{./chapters/related-work}
+\input{Chap2-Related-Work/related-work}
+
+% State of the Art
+\input{Chap3-Locomotion-Control/locomotion-control}
 
 % Visual servoing
-\input{./chapters/visual-servoing}
+\input{Chap4-Visual-Servoing/visual-servoing}
 
 % Using planning
-\input{./chapters/visual-planning}
+\input{Chap5-Visual-Planning/visual-planning}
 
 % 3D reconstruction
-\input{./chapters/3D-reconstruction}
+\input{Chap6-3D-Reconstruction/3D-reconstruction}
 
 % Conclusions and Future Work
-\input{./chapters/conclusions}
+\input{conclusions}
 
 \bibliography{lathese}
 

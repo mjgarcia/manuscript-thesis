@@ -318,15 +318,15 @@
 	\thispagestyle{empty}
 	\sf  \vspace*{0in}
 	\begin{center}\sc \large\@CIMAT\end{center}\vspace{.2in}
-	\begin{center}\sc \LARGE Thesis\end{center}\vspace{.2in}
-	\begin{center}to get the grade of\\
+	\begin{center}\sc \LARGE T\'esis\end{center}\vspace{.2in}
+	\begin{center}para obtener el grado de\\
 	 \vspace{.1in} {\large Maestro en Ciencias con Especialidad en Computaci\'on y Matem\'aticas Industriales}\\
-	 \if@final{\vspace{.1in}presented the \@TheDate}
+	 \if@final{\vspace{.1in}presentada el \@TheDate}
 	 \else{\vspace{.3in}\LARGE Draft: \@TheDraftDate}\fi
 	 \end{center} \vspace{0.4in}
 	\begin{center}\LARGE\@TheTitle\end{center}\vspace{.6in}
 	\begin{center}\@TheAuthor\end{center}\vspace{.6in}
-	\begin{center} {\large Jury}\end{center}\vspace{0.1in}
+	\begin{center} {\large Jurado}\end{center}\vspace{0.1in}
 	\begin{center}\begin{tabular}{lcl}
 	 M. Eiichi \sc Yoshida & & Examinateur \\
 	 M. \@TheAdvisor & & Directeur de Th\`ese
