@@ -1,5 +1,9 @@
-\chapter{Planning} 
+\chapter{Vision-Based Motion Primitives for Humanoid Walking} 
 \label{Chap:Visual-Planning}
+
+In the last chapter we presented an scheme to control a humanoid robot directly by using visual servoing techniques. However, the trajectories realized by the robot in that case are generated to minimize the distance in the image feature space and might create unnecessary motion in the space of the footprints. This is because visual servoing is a local control technique. If we want to take into account the shape of the trajectory or obtacles avoidance, a planning method would be necessary.
+
+Motion planning aims to take the robot from a initial to a final position while ensuring feasibility and obstacle avoidance. The notion of optimality arises in motion planning. From the work of \citep{Salaris:2010, jib-IJHR2010} it exists a set of optimal trajectories to take a nonholonomic robot from a initial to a final position while keeping insight a landmark. It has been shown that the human walking behaves nonholonomic for long distances. In this chapter, we will work upon those works and we will inject the motion primitives from the planner into the pattern generator level of the robot.
 
 \section{Global planning with visibility constraints}
 %==================================================================
@@ -205,7 +209,7 @@ leading to a canonical Quadratic Program (QP) similar to Eq.~\ref{Eq:QP}.
 The constraints arising from the CoP position to be included in the support polygon being non-linear in the feet orientation, we simply set the robot and feet orientations as follows and include the computed values into the QP.
 
 \subsection{Control of the rotation angle}
-In order for the robot to be oriented with the tangent to the optimal path, $\theta^0$, and to keep the QP form, we use a decoupled approach for the control of the rotation angles of the CoM and the feet~\cite{HerdtIros2010}. Hence, in a first stage, we optimize the orientations in the MPC time window by  
+In order for the robot to be oriented with the tangent to the optimal path, $\theta^0$, and to keep the QP form, we use a decoupled approach for the control of the rotation angles of the CoM and the feet~\cite{HerdtIROS2010}. Hence, in a first stage, we optimize the orientations in the MPC time window by  
 
 \begin{eqnarray}
 \nonumber

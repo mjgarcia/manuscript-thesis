@@ -2,8 +2,11 @@
 \chapter{Locomotion Control} 
 \label{Chap:Locomotion-Control}
 
+In this chapter we will introduce the techniques most commonly used in biped walking generation, the Linearized Inverted Pendulum Model and Kajita's Preview Control. These techniques are widely used and they have become an standar in humanoid walking control. In the next chapters, we will work upon these techniques. The reader is kindly encouraged to read the original papers to have a deeper understanding of these models.
+
+
 \section{The Linearized Inverted Pendulum Model and Model Predictive Control}
-Most of the works in biped walking are based on the simplified model porpossed by Kajita et al. in 1992 \citep{Kajita1992}. This model simplifies the multy-body nature of the robot considering it as an inverted pendulum. It also constraits the trajectory of the CoM of the inverted pendulum to a horizontal plane. This model is equivalent to the cart-table model, see Fig.~\ref{Fig:Inverted-Pendulum-Cart-Table}. This give us the Zero Moment Point (ZMP) \citep{Vukobratovi1972,Vukobratovi2004} equations
+Most of the works in biped walking are based on the simplified model porpossed by Kajita et al. in 1992 \citep{Kajita1992}. This model simplifies the multy-body nature of the robot considering it as an inverted pendulum. It also constraits the trajectory of the CoM of the inverted pendulum to a horizontal plane. This model is equivalent to the cart-table model, see Fig.~\ref{Fig:Inverted-Pendulum-Cart-Table}. This give us the Zero Moment Point (ZMP) equations \citep{Vukobratovi1972,Vukobratovi2004},
 
 \begin{equation}
 \mathbf{Z} = 
@@ -77,7 +80,7 @@ the optimal controller is given by,
 
 with $e(i) = p_x(i) - p_x^{ref}(i)$, and $K_1$, $K_2$ and $K_p(j)$ are gains.
 
-Kajita et al. also proposed a second step to correct the effects of the inverted pendulum simplification. This second step takes into account the multy-body dynamics and is reinjected to have a better CoM and ZMP trajectories.
+Kajita et al. also proposed a second step to correct the effects of the inverted pendulum simplification. This second step takes into account the multy-body dynamics and is reinjected to have better CoM and ZMP trajectories.
 
 \section{Quadratic Programming and Automatic footstep placement}
 
@@ -119,7 +122,7 @@ Wieber in \citep{WieberHumanoids2006} porposed to reformulate the preview contro
 Similar expressions can be obtained for the $y$ component. We can also express the ZMP trajectory
 
 \begin{equation}
- \label{Eq:PosCMHorizon}
+ \label{Eq:PosZMPHorizon}
  {\mathbf Z}_x(k+1) = \left(
  \begin{matrix}
   {z}_x(k+1) \\
@@ -143,7 +146,7 @@ which has the analitical solution
 \dddot{\mathbf{C}}_x(k) = -(\mathbf{U}_z^{\top} \mathbf{U}_z + \dfrac{R}{Q} \mathbf{I}_{N \times N})^{-1} \mathbf{U}_z^{\top}(\mathbf{S}_z \mathbf{c}_x(k) - \mathbf{Z}_x^{ref}(k)).
 \end{equation}
 
-As an evolution of this work, where the footsteps positions (and, correspondingly, the CoP positions) are fed to the pattern generation, the work of~\cite{HerdtAR2010} introduced automatic footstep planning, and reduced the necessary input to a simple stack of reference velocities $(\dot{X}_{k+1}^{ref},\dot{Y}_{k+1}^{ref})$. This leads to the optimization problem:
+As an evolution of this work, where the footsteps positions (and, correspondingly, the CoP positions) are fed to the pattern generation, the work of~\citep{HerdtAR2010} introduced automatic footstep placement, and reduced the necessary input to a simple stack of reference velocities $(\dot{X}_{k+1}^{ref},\dot{Y}_{k+1}^{ref})$. This leads to the optimization problem:
 
 \begin{eqnarray}
 \nonumber
@@ -170,14 +173,14 @@ $$
 
 The ZMP references $Z_{k+1}^{x\_{ref}},Z_{k+1}^{y\_{ref}}$ depend linearly on the variables $X_{k}^{f},Y_{k}^{f}$ which are the position of the next footsteps in the horizon.
 
-As the sequence of CoP positions $Z_{k+1}^x = [ {\xi}^x_{k+1} \; \cdots \; {\xi}^x_{k+N}]$ is linear in the variables to optimize (from Eq.~\ref{Eq:dynamic}), the problem is a Quadratic Program (QP) 
+As the sequence of CoP positions $Z_{k+1}^x = [ {\xi}^x_{k+1} \; \cdots \; {\xi}^x_{k+N}]$ is linear in the variables to optimize (from Eq.~\ref{Eq:PosZMPHorizon}), the problem is a Quadratic Program (QP) 
 
 \begin{equation}
  \underset{U_k}{\min} \; \dfrac{1}{2} U_k^{\transpose} Q_k U_k + p_k^{\transpose} U_k,
 \label{Eq:QP}
 \end{equation}
 
-under linear constraints arising, among others, from the inclusion of the CoP inside the support polygon~\cite{HerdtAR2010}.
+under linear constraints arising, among others, from the inclusion of the CoP inside the support polygon~\citep{HerdtAR2010}.
 
 As we said, the ZMP references are not fixed in advanced but are permanently recomputed from the feet position decided by the algorithm so that the ZMP lies in the middle of the foot. Let $(X_k^{fc},Y_k^{fc})$ be the current position of the foot on the ground. Then, the ZMP references are given by:
 \begin{align}

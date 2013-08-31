@@ -1,12 +1,12 @@
 \chapter{Stereo Reconstruction of Dense Surfaces to Walk on Rough Terrain} 
 \label{Chap:3DReconstruction}
 
-\section{Walking on Rough terrain}
+As we stated in figure \ref{Fig:GeneralDiagram} computer vision can be introduced (from hight to low level) in planning level, pattern generator level or whole-body motion level. In this chapter we will addresse the introduction of computer vision in the lowest level of robot motion generation: The Generalized Inverse Kinematics (GIK).
+
+\section{The Stack of Tasks}
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As we stated in figure \ref{Fig:GeneralDiagram} computer vision can be introduced (from hight to low level) in planning level, pattern generator level or whole-body motion level. In this chapter we will addresse the introduction of computer vision in the lowest level of robot motion generation: The Stack of Tasks (SoT).
-
-The Stack of Tasks is a system that implements the Generalized Inverted Kinematics (GIK). GIK is extensively used to do low level control in highly redundant robots. The SoT uses the notion of task and, moreover the notion of tasks priority. 
+The Stack of Tasks (SoT) is a system that implements the Generalized Inverted Kinematics (GIK). GIK is extensively used to do low level control in highly redundant robots. The SoT uses the notion of task and, moreover the notion of tasks priority. 
 
 Given the current value of the features $\mathbf{s}_i$ and the desired ones $\mathbf{s}^{*}_i$, a task is defined as,
 
@@ -32,7 +32,10 @@ $$
 \ddot{\mathbf{e}}_i = \dot{\mathbf{J}}_i \dot{\mathbf{q}} + \mathbf{J}_i \ddot{\mathbf{q}}.
 $$
 
-In \cite{} a porposal to walk on rough terrain was presented. It uses an inverse dynamics approach and a 3D reconstruction system to implement a compliant walking scheme. The inverse dynamics control scheme relying on a quadratic programming optimization solver is used to let each foot go from its initial to its final position, controlling also the center of mass and the waist. A 3D model reconstruction of the ground is obtained through the robot cameras located on its head as a stereo vision pair. The model allows the system to know the ground structure where the swinging foot is going to step on. Thus, contact points can be handled to adapt the foot position to the ground conditions.
+\section{Walking on Rough terrain}
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In \citep{RamosIJHR2013} a porposal to walk on rough terrain was presented. It uses an inverse dynamics approach and a 3D reconstruction system to implement a compliant walking scheme. The inverse dynamics control scheme relying on a quadratic programming optimization solver is used to let each foot go from its initial to its final position, controlling also the center of mass and the waist. A 3D model reconstruction of the ground is obtained through the robot cameras located on its head as a stereo vision pair. The model allows the system to know the ground structure where the swinging foot is going to step on. Thus, contact points can be handled to adapt the foot position to the ground conditions.
 
 The inverse dynamics scheme is based in tree tasks: (i) a task for tracking the position of the CoM given by the Pattern Generator, (ii) a task to partially track the waist trajectory, this taks controls the height of the waist as well as its orientation and, (iii) an interpolation task, this task takes the swinging foot from its initial position to its desired final position, the foot reacts in a compliant way if a contact is detected before arriving to the final position on the ground.
 
@@ -40,12 +43,12 @@ The contact points detection is done using a 3D model of the floor in front of t
 
 \section{Stereo reconstruction}
 
-To perform the dense reconstruction of the floor surface in front of the robot, we rely on a real-time approach similar to KinectFusion algorithm proposed in~\cite{Newcombe2011}. This approach, originally developed for a RGB-D sensor, models 3-D surfaces as zero-valued level sets of functions defined over the workspace volume. These functions are referred to as truncated signed distance function (TSDF) and they are built incrementally, by integrating the depth measurements the sensor provides, frame after frame. TSDF are defined in the 3D space, and their value is the signed distance to the closest obstacle. Here, we extend this approach, initially proposed for RGB-D depth data, to disparity data generated from a stereo head. Although the stereo data is noisier than the one from RGB-D sensors, it is a passive sensor and can be used outdoors in sunlight conditions.
+To perform the dense reconstruction of the floor surface in front of the robot, we rely on a real-time approach similar to KinectFusion algorithm proposed in~\citep{Newcombe2011}. This approach, originally developed for a RGB-D sensor, models 3-D surfaces as zero-valued level sets of functions defined over the workspace volume. These functions are referred to as truncated signed distance function (TSDF) and they are built incrementally, by integrating the depth measurements the sensor provides, frame after frame. TSDF are defined in the 3D space, and their value is the signed distance to the closest obstacle. Here, we extend this approach, initially proposed for RGB-D depth data, to disparity data generated from a stereo head. Although the stereo data is noisier than the one from RGB-D sensors, it is a passive sensor and can be used outdoors in sunlight conditions.
 
 
 Consider, as in the previous sections, that $k$ is a discretized time index. The idea is to update a mathematical representation of the surface through a volumetric TSDF model (defined over a 3D grid), referred to as $F_k$. The basic steps for integrating one new set of disparity measurements at time $k$, to update $F_k$ and the corresponding surface, are the following ones: (i) Filter the raw depth measurements generated from the stereo head, $D_k$; here we used bilateral filtering for that purpose; (ii) From these filtered measurements and the prediction of the estimated surface at the previous step, estimate the transformation between the measured surface and the predicted one using the iterative closest point algorithm (ICP) and update the camera pose; (iii) Compute a volumetric grid formed from ``local'' TSDF values $F_{D_k}$, to which confidence weights $W_{D_k}$ are associated, and integrate them into the global volumetric grid $\{F_k,W_k\}$; (iv) Predict a new surface for the next iteration by using ray-casting over the zero-crossings of the fused global volumetric grid $\{F_k,W_k\}$. 
 
-To use this algorithm with stereo data and generate local data $D_k$, a disparity map from a pair of rectified images is estimated, from which the depth map $D_k$ is derived, supposing the stereo rig is completely calibrated. The literature of algorithms that estimate disparity maps is huge, but since a real time one is needed for this application, the one proposed in~\cite{Geiger2010} has been used. This algorithm estimates a piece-wise disparity map using an initial sparse disparity map of high textured points as vertices that define a triangulation of the image. Then, the dense disparity map of each sub-region is estimated by using the initial, sparse disparity map as a prior in a probabilistic scheme. The steps of the reconstruction process are illustrated in Fig.~\ref{Fig:Reconstruction}
+To use this algorithm with stereo data and generate local data $D_k$, a disparity map from a pair of rectified images is estimated, from which the depth map $D_k$ is derived, supposing the stereo rig is completely calibrated. The literature of algorithms that estimate disparity maps is huge, but since a real time one is needed for this application, the one proposed in~\citep{Geiger2010} has been used. This algorithm estimates a piece-wise disparity map using an initial sparse disparity map of high textured points as vertices that define a triangulation of the image. Then, the dense disparity map of each sub-region is estimated by using the initial, sparse disparity map as a prior in a probabilistic scheme. The steps of the reconstruction process are illustrated in Fig.~\ref{Fig:Reconstruction1}
 
 \subsection{Pre-processing}
 As mentioned above, it is necesary to apply a bilateral filter to the raw depth map to smooth it preserving the borders.
@@ -140,13 +143,54 @@ The data association and pose estimation is embedded into a coarse to fine frame
 
 \section{Results}
 
+For the implementation, we adapted the kinfu algorithm which is provided with the Point Cloud Library (PCL). We also used the stereo matching algorithm which is provided in the authors web page \footnote{http://www.cvlibs.net/software/libelas/}. We made the experiments with the stereo rig which is in the head of the HRP-2 humanoid robot. In order to do that, we used the Robot Operating System (ROS) framwork as a middleware to link the different parts.
+
+In Fig. \ref{Fig:Reconstruction1} we depict the input and output of the stages of the algorithm. In Figs. \ref{Fig:Reconstruction1}, \ref{Fig:Reconstruction2} we show the results with the escene of flat floor and some objects on it, like books and small boxes. In Fig. \ref{Fig:Reconstruction3} we tested the algorithm in a stairs scene with the small objects as well. Finally, in Fig. \ref{fig.robot-walking-obstacle} we depict a fully dynamic simulation of the HRP-2 robot while walking on rough terraint using the reconstruction system presented in this chapter.
+
+\begin{figure}[h] \centering
+\includegraphics[scale=0.25]{Chap6-3D-Reconstruction/left0001}
+\hspace{0.2cm}
+\includegraphics[scale=0.25]{Chap6-3D-Reconstruction/right0001}
+\vspace{0.2cm}
+\includegraphics[scale=0.37]{Chap6-3D-Reconstruction/left0001_disp}
+\vspace{0.2cm}
+\includegraphics[scale=0.5]{Chap6-3D-Reconstruction/snapshot02}
+\caption[]{From a pair of images of the scene in front of the robot
+(left) we estimate a dense disparity map (middle) and from this
+disparity map we estimate a dense surface integrating the previous
+frames into the volumetric grid.}
+\label{Fig:Reconstruction1}
+\end{figure}
+
+
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.17]{Chap6-3D-Reconstruction/right0001}
-\hspace{0.2cm}
-\includegraphics[scale=0.17]{Chap6-3D-Reconstruction/left0001_disp}
-\hspace{0.2cm}
-\includegraphics[scale=0.22]{Chap6-3D-Reconstruction/snapshot02}
-\caption[]{From a pair of images of the scene in front of the robot (left) we estimate a dense disparity map (middle) and from this disparity map we estimate a dense surface integrating the previous frames into the volumetric grid.}
-\label{Fig:Reconstruction}
+\includegraphics[scale=0.5]{Chap6-3D-Reconstruction/frame0005}
+\includegraphics[scale=0.5]{Chap6-3D-Reconstruction/snapshot01}
+\caption[]{Reconstruction of a scene of flat floor with small objects on it like books and boxes.}
+\label{Fig:Reconstruction2}
 \end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{Chap6-3D-Reconstruction/left0003}
+\includegraphics[scale=0.57]{Chap6-3D-Reconstruction/snapshot00}
+\caption[]{Reconstruction of a stairs scene with some objects on it.}
+\label{Fig:Reconstruction3}
+\end{figure}
+
+\begin{figure*}
+\centering \footnotesize
+\subfigure[\footnotesize \label{fig.w1}]{\includegraphics[width=0.35\linewidth ]{Chap6-3D-Reconstruction/robot-obstacle1.png}} ~  %\hfill
+\subfigure[\footnotesize \label{fig.w2}]{\includegraphics[width=0.35\linewidth]{Chap6-3D-Reconstruction/robot-obstacle2}} \\   %\hfill
+\subfigure[\footnotesize \label{fig.w3}]{\includegraphics[width=0.35\linewidth]{Chap6-3D-Reconstruction/robot-obstacle3}}  ~ %\hfill
+\subfigure[\footnotesize \label{fig.w3}]{\includegraphics[width=0.35\linewidth]{Chap6-3D-Reconstruction/robot-obstacle4}} \\  %\hfill
+\subfigure[\footnotesize \label{fig.w3}]{\includegraphics[width=0.35\linewidth]{Chap6-3D-Reconstruction/robot-obstacle5}} ~   %\hfill
+\subfigure[\footnotesize \label{fig.w3}]{\includegraphics[width=0.35\linewidth]{Chap6-3D-Reconstruction/robot-obstacle6}}
+\caption{HRP-2 walking on an obstacle.}
+\label{fig.robot-walking-obstacle}
+\end{figure*}
+
+\section{Conclusion}
+
+In this chapted we presented the connection of existing algorithms of eficient stereo matching and 3D reconstruction to be used in a more complex system to make the robot walk on rough terrain. This connection was done over ROS and tested succesfully with scenes of flat floor and stairs with small objects on them. The output of this algorithm provides a model of the world to a control system which implements a compliant walking scheme.

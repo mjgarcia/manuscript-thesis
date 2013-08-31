@@ -5,3 +5,26 @@
 
 \chapter{Conclusions}
 \label{Chap:Conclusions}
+
+In this thesis we tackled the problem of humanoid walking using visual information. Following the perception-desition-action paradigm, in this thesis we partially addressed all of them. A chain of improvements has been done since the ZMP Preview Control scheme was first introduced in \citep{Kajita2003}. We build on the work of prominent previous works and proposed new approaches to improve the humanoid walking.
+
+\section{Contributions}
+
+We presented a visual servoing scheme at the pattern generator level using Model Predictive Control. In the case of humanoid robots, visual servoing is a very useful approach for controlling precisely the robot position in contexts such as interactions with humans (to set the robot in front of a person), or to pre-position the robot before starting some manipulation tasks. The advantage of visual servoing is that the positioning task is defined relatively to a specific target. In any of the aforementioned applications, the higher-level navigation can be advantageously left to a planner, that would determine the sequence of landmarks, or human interactions, to reach consecutively. 
+
+Since Visual Servoing is a local controller, we extended the scope of the pattern generation by directly introducing planning. Traditionally, planning was introduced at the pattern generator level using footprints. In our approach, we directly injected the motion primitives to the patterns generator using a velocity reference guided by a vector field.
+
+In fact, these two paradigms are more complimentary than opposite: whereas planning may require high computational costs, but solve more complex problems of path finding, visual servoing is fast, by essence, but in general confined to local tasks that do not require high level reasoning, e.g. positioning the robot with respect to a given object.
+
+Both contributions are based on Linear Model Predictive Control. However, due to the new optimization techniques and new computation performance, Nonlinear Model Predictive Control should be explored. This way we could use the whole-body motion instead of inverted pendulum simplification and moreover, deal with more accurate models.
+
+Paralelly to the work of the pattern generation, we also presented an implementation of the connection of stereo matching and 3D reconstruction algorithms to be used by a walking control scheme. This reconstruction system was succesfully tested on the HRP-2 robot and its output provides to a dynamic simulation of walking on rough terrain.
+
+\section{Perspectives}
+
+Out final goal is that the humanoid robots can achieve highly reactive motions in uncontrolled environments. Even if it has been impressive demostrations of humanoid robots performing reactive motions based on perception, they are done in controlled environments. In current robotics, perception is one of the most important challenges.
+
+In the control side, it already exists very suitable models of the humanoid locomotion and control. Those models are mainly stated as optimization problems. However, today's computers and algorithms can not solve in real time those complex models. Consequently, we rely in simplified but useful models to make the robots walk. Moreover, the introduction of torque controlled actuators can considerably improve the performance of humanoid motion.
+
+Cosidering the current humanoid robotics development and challeneges, we would like to continue contribuiting in humanoid locomotion based on vision. Always taking into account state of the art perception algorithms, optimization solvers and mathematical models of humanoid walking.
+

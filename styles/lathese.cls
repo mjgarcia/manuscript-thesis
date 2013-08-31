@@ -50,7 +50,7 @@
 
 %\usepackage[left=1.5in, right=1in, top=1in, bottom=1in, includefoot, headheight=13.6pt]{geometry}
 \usepackage[letterpaper]{geometry}
-\geometry{tmargin=35mm,bmargin=30mm,lmargin=35mm,rmargin=25mm}
+\geometry{tmargin=35mm,bmargin=35mm,lmargin=40mm,rmargin=30mm}
 %\RequirePackage{geometry}
 %\geometry{tmargin=35mm}
 %\geometry{tmargin=35mm,bmargin=26mm,lmargin=23mm,rmargin=23mm}
@@ -318,7 +318,7 @@
 	\thispagestyle{empty}
 	\sf  \vspace*{0in}
 	\begin{center}\sc \large\@CIMAT\end{center}\vspace{.2in}
-	\begin{center}\sc \LARGE T\'esis\end{center}\vspace{.2in}
+	\begin{center}\sc \LARGE Tesis\end{center}\vspace{.2in}
 	\begin{center}para obtener el grado de\\
 	 \vspace{.1in} {\large Maestro en Ciencias con Especialidad en Computaci\'on y Matem\'aticas Industriales}\\
 	 \if@final{\vspace{.1in}presentada el \@TheDate}
@@ -328,8 +328,10 @@
 	\begin{center}\@TheAuthor\end{center}\vspace{.6in}
 	\begin{center} {\large Jurado}\end{center}\vspace{0.1in}
 	\begin{center}\begin{tabular}{lcl}
-	 M. Eiichi \sc Yoshida & & Examinateur \\
-	 M. \@TheAdvisor & & Directeur de Th\`ese
+	 Dr. H\'ector \sc Becerra & & Sinodal \\
+	 Dr. Claudia \sc Esteves & & Sinodal \\
+	 Dr. Olivier \sc Stasse & & Co-Asesor \\
+	 Dr. Jean-Bernard \sc Hayet & & Co-Asesor
 	\end{tabular}\end{center}
 	\pagebreak
 	\thispagestyle{empty}
