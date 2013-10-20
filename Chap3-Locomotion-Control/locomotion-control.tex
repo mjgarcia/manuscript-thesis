@@ -286,16 +286,16 @@ with $\alpha$, $\beta$, $\gamma$ being constants that indicates the weihgt of ea
 
 \begin{eqnarray}
 \label{Eq:ZMPReference}
-  Z_x^{ref}(k+1) & = V_c(k+1) \hat{F}_x(k) + V(k+1) F_x(k) \nonumber \\
-  Z_y^{ref}(k+1) & = V_c(k+1) \hat{F}_y(k) + V(k+1) F_y(k),
+  Z_x^{ref}(k+1) & = V_c \hat{F}_x(k) + V F_x(k) \nonumber \\
+  Z_y^{ref}(k+1) & = V_c \hat{F}_y(k) + V F_y(k),
 \end{eqnarray}
 
 whith $\hat{F}_x(k)$, $\hat{F}_y(k)$ being the current position of the foot on
 the ground, and
 
 \begin{equation*}
-   V_c(k+1) = \begin{bmatrix}1 \\ \vdots \\ 1 \\ 0 \\ \vdots \\ 0 \\ 0 \\ \vdots \\ 0  \end{bmatrix} \qquad
-   V(k+1) = \begin{bmatrix} 0 & 0 & 0 & \cdots & 0 \\ \vdots & \vdots
+   V_c = \begin{bmatrix}1 \\ \vdots \\ 1 \\ 0 \\ \vdots \\ 0 \\ 0 \\ \vdots \\ 0  \end{bmatrix} \qquad
+   V = \begin{bmatrix} 0 & 0 & 0 & \cdots & 0 \\ \vdots & \vdots
      & \vdots & \ddots\\ 
                                            0 & 0 & 0 & \cdots & 0\\
                            1 & 0 & 0 & \cdots & 0 \\ \vdots & \vdots &
@@ -330,7 +330,7 @@ As the terms in the optimization problem defined in Eqs.~\ref{Eq:PosCMHorizon}-\
 
 under linear constraints arising, among others, from the inclusion of the ZMP reference inside the support polygon~\citep{HerdtAR2010}.
 
-For instance, during the single support phase, the constraint ensuring that the ZMP remains inside the support polygon is expressed as:
+For instance, during the single support phase (in which we have a support foot and a flying one), the constraint ensuring that the ZMP remains inside the support polygon is expressed as:
 \begin{equation}
   \begin{bmatrix} d_x(\theta) & d_y(\theta) \end{bmatrix}
   \begin{bmatrix} z_x - f_x \\ z_y - f_y \end{bmatrix} \leq b(\theta)
