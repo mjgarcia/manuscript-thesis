@@ -1,9 +1,9 @@
-\chapter{Vision-Based Motion Primitives for Humanoid Walking} 
+\chapter{Planning Visual Tasks for Reactive Humanoid Walking} 
 \label{Chap:Visual-Planning}
 
-In the last chapter we presented an scheme to control a humanoid robot directly by using visual servoing techniques. However, the trajectories realized by the robot in that case are generated to minimize the distance in the image feature space and might create unnecessary motion in the space of the footprints. This is because visual servoing is a local control technique. If we want to take into account the shape of the trajectory or obtacles avoidance, a planning method would be necessary.
+In the previous chapter we presented an scheme to control a humanoid robot directly by using visual servoing techniques. However, the trajectories realized by the robot in that case are generated to minimize the distance in the image features space and might create unnecessary motion in the space of the footprints. This is because visual servoing is a local control technique. If we want to take into account the shape of the trajectory or obstacles avoidance, a planning method would be necessary.
 
-Motion planning aims to take the robot from a initial to a final position while ensuring feasibility and obstacle avoidance. The notion of optimality arises in motion planning. From the work of \citep{Salaris:2010, jib-IJHR2010} it exists a set of optimal trajectories to take a nonholonomic robot from a initial to a final position while keeping insight a landmark. It has been shown that the human walking behaves nonholonomic for long distances. In this chapter, we will work upon those works and we will inject the motion primitives from the planner into the pattern generator level of the robot.
+Motion planning aims to take the robot from a initial to a final position while ensuring feasibility and obstacle avoidance. The notion of optimality arises in motion planning. From the work of \citep{Salaris:2010, jib-IJHR2010} it exists a set of optimal trajectories to take a nonholonomic robot from a initial to a final position while keeping in sight a landmark. Also, tt has been shown that the human walking behaves nonholonomic for open spaces. In this chapter, we will work upon those works and we will inject the motion primitives from the planner into the pattern generator level of the robot.
 
 \section{Global planning with visibility constraints}
 %==================================================================
@@ -36,7 +36,7 @@ Let us focus on the execution of each sub-path $s$. Suppose that we start with t
 
 \subsection{Adapting the reference trajectory for the MPC}
 
-Without loss of generality, we suppose that the object of interest to be kept at sight by the robot is located at $\mathbf L^s = (0,0)$. In all the following, $x,y,\theta$ will refer to coordinates w.r.t a global frame centered at this origin.
+Without loss of generality, we suppose that the object of interest to be kept at sight by the robot is located at $L^s = (0,0)$. In all the following, $x,y,\theta$ will refer to coordinates w.r.t a global frame centered at this origin.
 
 It is noteworthy that, given the sub-goal $q^s =(x_q^s,y_q^s,\theta_q^s)^T$ to reach, and the landmark it is associated to, the work of~\cite{Salaris:2010} gives us a full synthesis of optimal paths in free space. This synthesis can be represented as a mapping $\sigma$:
 $$
@@ -62,14 +62,14 @@ Our claim is that the knowledge of optimal policies at each point allows some fl
 
 \begin{figure}[h]
 \centering
- \subimport*{Chap5-Visual-Planning/}
-                   {config.pdf_t}
+ \scalebox{1.5}{\subimport*{Chap5-Visual-Planning/}
+                   {config.pdf_t}}\hspace{2cm}
 \caption{From a configuration $(x,y,\theta)$ and its corresponding position $(x,y)$, and a sub-goal $q^s= (x_q^s,y_q^s,\theta_q^s)$ to reach, the optimal path (dashed line) is the one we want the humanoid robot to follow. For that, we use the tangent orientation $\theta^*(x,y)$ to this path. Because of the errors in control or localization, this optimal path may be different from the shortest path (solid line) computed from the first configuration $p^s= (x_p^s,y_p^s,\theta_p^s)$.
 %For the linearization purposes, and given that $(x,y)$ will be variable, we will use a nominal shortest path (solid line) from a close, fixed configuration $p^s= (x_p^s,y_p^s,\theta_p^s)$.
 \label{fig:paths}}
 \end{figure}
 
-In pattern generation algorithms such as~\cite{HerdtAR2010}, the cost function within the Model Predictive Control (MPC) window uses the configurations of the CoM. Here, focusing more specifically on the $(x,y,\theta)$ CoM coordinates, we handle as an input of the algorithm a reference trajectory to be followed, and a synthesis of shortest paths leading to a given objective, as a direct output from~\cite{Salaris:2010}. As depicted in Fig.~\ref{fig:paths}, at each configuration evaluated within the MPC, two forces should apply through the optimization scheme: one driving the robot to the ``correct'' orientation $\theta^*(x,y)$, and one making the velocities follow the shortest path, $(v(x,y),\omega(x,y))$. Also, a strong visibility constraint should apply, to ensure the object of interest to stay visible. In Fig.~\ref{fig:fieldNoLateral}, we give an illustration of the shortest paths synthesis from~\cite{Salaris:2010}, displayed through the local orientations of optimal paths at each point of the plane, given the objective to reach (``end point'') and the landmark to keep in sight. 
+In pattern generation algorithms such as~\cite{HerdtAR2010}, the cost function within the Model Predictive Control (MPC) window uses the configurations of the CoM (see Chap.~\ref{Chap:Locomotion-Control}). Here, focusing more specifically on the $(x,y,\theta)$ CoM coordinates, we handle as an input of the algorithm a reference trajectory to be followed, and a synthesis of shortest paths leading to a given objective, as a direct output from~\cite{Salaris:2010}. As depicted in Fig.~\ref{fig:paths}, at each configuration evaluated within the MPC, two forces should apply through the optimization scheme: one driving the robot to the ``correct'' orientation $\theta^*(x,y)$, and one making the velocities follow the shortest path, $(v(x,y),\omega(x,y))$, so we can follow the trajectories according to the optimal synthesis. Also, a strong visibility constraint should apply, to ensure the object of interest to stay visible. In Fig.~\ref{fig:fieldNoLateral}, we give an illustration of the shortest paths synthesis from~\cite{Salaris:2010}, displayed through the local orientations of optimal paths at each point of the plane, given the objective to reach (``end point'') and the landmark to keep in sight. 
 
 
 %==================================================================
@@ -139,7 +139,7 @@ In pattern generation algorithms such as~\cite{HerdtAR2010}, the cost function w
 
 \subsection{Using the optimal path synthesis within the MPC}
 
-Instead of utilizing in the Equation~\ref{Eq:MinJerk}, a single, constant reference trajectory, defined by the plan computed from $p^s$ to $q^s$, and from which $(\dot{X}_{k+1}^{ref},\dot{Y}_{k+1}^{ref})$ would be evaluated, our idea is to use explicitly the mapping $\sigma$ described above. This way, we can adapt the path execution and find the shortest path to the next sub-goal from any point, not just from $p^s$. As explained above, one can  associate to any $x,y$ the tangent $\theta^*(x,y)$ to the shortest path. One way to enforce the tracking of these shortest paths is to set as a reference velocity (supposing we are following a piece of curve with $v=1$) defined in the time horizon ($l>k$, where $k$ is the current time index):
+Instead of utilizing in the Equation~\ref{Eq:MinJerk}, a single, constant reference trajectory, defined by the plan computed from $p^s$ to $q^s$, and from which $(\dot{X}_{k+1}^{ref},\dot{Y}_{k+1}^{ref})$ would be evaluated, our idea is to use explicitly the mapping $\sigma$ described above. This way, we can adapt the path execution and find the shortest path to the next sub-goal from any point, not just from $p^s$. Even more, we can adapt to any change in the execution on the fly. As explained above, one can  associate to any $x,y$ the tangent $\theta^*(x,y)$ to the shortest path. One way to enforce the tracking of these shortest paths is to set as a reference velocity (supposing we are following a piece of curve with $v=1$) defined in the time horizon ($l>k$, where $k$ is the current time index):
 
 $$
 \begin{array}{ccc}
@@ -182,14 +182,17 @@ $$
 and by stacking the errors within the horizon window as in Eq.~\ref{Eq:PosCMHorizon}, we get the following 
 linear relations
 
+{\small
 \begin{eqnarray}
 \nonumber
- \dot{C}_{k+1}^{x}  - \dot{X}_{k+1}^{ref} & = &    \dot{C}_{k+1}^{x} -   \dot{C}_{k+1}^{0,x}  + A^x_{0} C_{k+1}^{x}  + B^x_{0} C_{k+1}^{y},\\
- \dot{C}_{k+1}^{y} - \dot{Y}_{k+1}^{ref} & = &   \ \dot{C}_{k+1}^{y} - \dot{C}_{k+1}^{0,y} + A^y_{0} C_{k+1}^{x} + B^y_{0}  C_{k+1}^{y},
+ \dot{C}_x(k+1)  - \dot{C}_x^{ref}(k+1) & = &    \dot{C}_{x}(k+1) -   \dot{C}^{0}_x(k+1)  + A^0_{x} C_{x}(k+1)  + B_x^{0} C_{y}(k+1),\\
+\nonumber
+ \dot{C}_{y}(k+1) - \dot{C}_y^{ref}(k+1) & = &   \dot{C}_{y}(k+1) - \dot{C}^0_x(k+1) + A^0_{y} C_{x}(k+1) + B^0_{y}  C_y(k+1),\\
  \label{eq-velref-linear}
  \end{eqnarray}
+}
 
-where $A^x_{0},B^x_{0},A^y_{0},B^y_{0}$ are diagonal matrices collecting the terms $v\sin(\theta^0_l) \frac{\partial \theta^0_l}{\partial x}$ and alike. Then, the walking pattern generation is formulated exactly as in Eq.~\ref{Eq:MinJerk}, with the reference velocities given by Eq.~\ref{eq-velref-linear}, and with the optimization variable being $U_{k}$,
+where $A^0_{x},B^0_{x},A^0_{y},B^0_{y}$ are diagonal matrices collecting the terms $v\sin(\theta^0_l) \frac{\partial \theta^0_l}{\partial x}$ and alike. Then, the walking pattern generation is formulated exactly as in Eq.~\ref{Eq:MinJerk}, with the reference velocities given by Eq.~\ref{eq-velref-linear}, and with the optimization variable being $U(k)$,
 %$U_{k} \stackrel{\mbox{\tiny def}}{=}  \left( (\dddot{C}_k^{x})^ \transpose, (X_{k}^{f})^ \transpose, (\dddot{C}_k^{y})^ \transpose, (Y_{k}^{f})^ \transpose \right)^{\transpose}$ 
 leading to a canonical Quadratic Program (QP) similar to Eq.~\ref{Eq:QP}.
 
@@ -213,8 +216,8 @@ In order for the robot to be oriented with the tangent to the optimal path, $\th
 
 \begin{eqnarray}
 \nonumber
- \min\limits_{\dddot{C}_k^{\theta},\dddot{F}_k^{\theta}}  &&  \dfrac{\beta}{2} \left\| C_{k+1}^{\theta} - \theta^{0} \right\|^2 + \dfrac{\gamma}{2} \left\| F_{k+1}^{\theta} - \theta^{0} \right\|^2 \\
-\nonumber && + \dfrac{\alpha}{2} \left\| \dddot{C}_{k}^{\theta} \right\|^2 + \dfrac{\alpha}{2} \left\| \dddot{F}_{k}^{\theta} \right\|^2,
+ \min\limits_{\dddot{C}_{\theta}(k),\dddot{F}_{\theta}(k)}  &&  \dfrac{\beta}{2} \left\| C_{\theta}(k+1) - \theta^{0} \right\|^2 + \dfrac{\gamma}{2} \left\| F_{\theta}(k+1) - \theta^{0} \right\|^2 \\
+\nonumber && + \dfrac{\alpha}{2} \left\| \dddot{C}_{\theta}(k+1) \right\|^2 + \dfrac{\alpha}{2} \left\| \dddot{F}_{\theta}(k+1) \right\|^2,
 \end{eqnarray}
 
 and then in a second stage, we introduce these angles as constant in the main QP (Eq.~\ref{Eq:MinJerk}). This approach gives us the advantage of introducing constraints like maximum rotation between both feet, between feet and trunk and also a rotation limit to keep the visibility of the landmarks.
@@ -263,7 +266,7 @@ In Fig.~\ref{fig:fieldUseLateral}, we illustrate this modification by drawing th
 
 In this section, we present three experiments. In the first one, we test the performance of our approach in the absence of localization uncertainty, and with only non-holonomic motion. In the second one, we introduce localization uncertainty. In the last one, we present an improvement to the border behavior with the possibility of holonomic motion. The three experiments have the same set-up, with initial position in $(0.5,2.5)$, landmark position in $(0,0)$ and final position in $(-3,0)$. We chose this trajectory because it makes the robot pass through several regions of the partition and illustrates the border behavior which is one of the problems we found.
 
-In Fig.~\ref{fig:steps6}, we depict the performance in perfect and noiseless conditions. We see that using the planner vector field for driving the robot to the goal produces smooth and stable trajectories of the CoM. However, in real conditions, the robot will not perform the control exactly e.g., because of sliding with the floor. Moreover the robot needs a localization system which will be inherently noisy. To model this situation we perturbed the current position of the CoM with white gaussian noise $\sim \mathcal{N}(0,\sigma^2)$ in each coordinate with $\sigma = 0.2$ and with $\sigma = 10$ degrees for the orientation.
+In Fig.~\ref{fig:steps6}, we depict the performance in perfect and noiseless conditions. We see that using the planner vector field for driving the robot to the goal produces smooth and stable trajectories of the CoM. However, in real conditions, the robot will not perform the control exactly e.g., because of sliding with the floor. Moreover the robot needs a localization system which will be inherently noisy. To model this situation we perturbed the current position of the CoM with white gaussian noise $\sim \mathcal{N}(0,\sigma^2)$ in each coordinate with $\sigma = 0.2$m for translation and with $\sigma = 10$ degrees for the orientation.
 
 \begin{figure}[ht]
 \centering
@@ -307,7 +310,7 @@ To address the aforementioned problem, we present the results of the improvement
 \begin{figure}[ht]
 \centering
 \includegraphics[scale=0.55]{Chap5-Visual-Planning/steps11zoom.pdf}
-\caption{Transition between non-holonomic and holonomic controls. Moving sideways is much more efficient for such a trajectory to the goal.}
+\caption{Transition between non-holonomic and holonomic controls. Moving sideways is much more efficient for such a trajectory to reach the goal.}
 \label{fig:steps11zoom}
 \end{figure}
 

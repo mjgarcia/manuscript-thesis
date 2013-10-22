@@ -1,7 +1,7 @@
 \chapter{Vision-Based Control of Humanoid Walking} 
 \label{Chap:Visual-Servoing}
 
-We have introduced the mathematical foundations behind humanoid walking. In this chapter we will discuss the applicability of controlling the robot trajectory using visual servoing, as depicted in Fig.~\ref{Fig:Schema}. We present a novel approach for using a visual servoing scheme to control the dynamic walk of a humanoid robot. Here, the online information given by an on-board camera is used to drive the robot towards a specific goal, in a visual servoing scheme. This closed loop approach allows the system to react to changes in its environment and to adapt to modeling errors. Our work is built upon the reactive pattern generator of \citep{HerdtAR2010} that we presented at the end of Chapter \ref{Chap:Locomotion-Control}, which modifies footsteps, center of mass and center of pressure trajectories to track a reference velocity. We compare our method to another which is not using Model Predictive Control. This alernative method, proposed by Dune et al. \citep{DuneIROS2010} outputs, in a first stage, a reference velocity directly given by the visual servoing control law and then, in a second stage, this reference velocity is introduced in the pattern generator to produce the appropriate walking motion (hence, our term of ``decoupled''). The coupled approach proposed here uses a Model Predictive Control scheme to introduce the visual error terms directly within the pattern generator. This allows to avoid a number of limitations (e.g. that visual constraints cannot be introduced directly inside the locomotion controller or that the camera motion has to be accounted for separately) that appear in the decoupled method.  In this work, both approaches are compared numerically and validated in simulation.
+We have introduced the mathematical foundations behind humanoid walking. In this chapter we will discuss the applicability of controlling the robot trajectory using visual servoing, as depicted in Fig.~\ref{Fig:Schema}. We present a novel approach for using a visual servoing scheme to control the dynamic walk of a humanoid robot. Here, the online information given by an on-board camera is used to drive the robot towards a specific goal, in a visual servoing scheme. This closed loop approach allows the system to react to changes in its environment and to adapt to modeling errors. Our work is built upon the reactive pattern generator of \citep{HerdtAR2010} that we presented at the end of Chapter \ref{Chap:Locomotion-Control}, which modifies footsteps, center of mass and center of pressure trajectories to track a reference velocity. We compare our method to another which is not using Model Predictive Control. This alternative method, proposed by Dune et al. \citep{DuneIROS2010} outputs, in a first stage, a reference velocity directly given by the visual servoing control law and then, in a second stage, this reference velocity is introduced in the pattern generator to produce the appropriate walking motion (hence, our term of ``decoupled''). The coupled approach proposed here uses a Model Predictive Control scheme to introduce the visual error terms directly within the pattern generator. This allows to avoid a number of limitations (e.g. that visual constraints cannot be introduced directly inside the locomotion controller or that the camera motion has to be accounted for separately) that appear in the decoupled method.  In this work, both approaches are compared numerically and validated in simulation.
 
 \section{ Visual servoing}
 
@@ -90,12 +90,12 @@ and finally, it is used in the control law for the CoM (e.g., the reference velo
 
 Note that the discrete form of the involved integrals are used in practice. More details can be found in~\citep{DuneIROS2010}. To apply this control, we need the actual measured errors $ e$ (as in any classical visual servoing approach), an estimate of the sway motion period, which is deduced from the stepping period, and a point-wise estimate for the sway motion at the level of the CoM $\text{ v}^b$.
 
-This reference velocity can be directly injected in the Velocity Controlled Pattern Generator introduced in previous section. However this approach has several drawbacks. First, the control law will never be executed as is, because of dynamical and physical limitations of the robot. Second, to get equation \ref{eq:avControlCom} they make several asumptions, which sometimes are not true. And third, since the PG a and the servo controller are totally decoupled, the visual feedback has to wait for the next iteration to be introduced in the PG. In order to solve this problem, we will present in the next section a Visual Servo controller which will be directly introduced in the Pattern Generator.
+This reference velocity can be directly injected in the Velocity Controlled Pattern Generator introduced in previous section. However this approach has several drawbacks. First, the control law will never be executed as is, because of dynamical and physical limitations of the robot. Second, to get equation \ref{eq:avControlCom} they make several assumptions, which sometimes are not true. And third, since the PG a and the servo controller are totally decoupled, the visual feedback has to wait for the next iteration to be introduced in the PG. In order to solve this problem, we will present in the next section a Visual Servo controller which will be directly introduced in the Pattern Generator.
 
 \section{Visual servoing and MPC}
 \label{sec:vsmauricio}
 
-As we know, in walking pattern generation, MPC is used to estimate a sequence of optimal controls at some horizon, because of the step-based nature of walking. Hence, we want to orient the optimization of the foot placement by taking into account the expected evolution of the visual servoing (VS) errors so that, instead of minimizing the VS errors at current time $k$, one would like to foresee its evolution at some horizon $[k+1,k+N]$. 
+As we know, in walking pattern generation, MPC is used to estimate a sequence of optimal controls at some horizon, because of the step-based nature of walking. Hence, we want to orient the optimization of the foot placement by taking into account the expected evolution of the visual servoing (VS) errors so that, instead of minimizing the VS errors at current time $k$, one would like to foresee its evolution at some horizon $[k+1,k+N]$. In this chapter, in order to simplify the notation, we will use the form $s_k$ to express the the time reference $k$ of $s(k)$ and alike.
 
 In~\citep{Allibert2010}, such a time horizon-aware scheme has been proposed. The visual predictive control (VPC) is introduced as:
 
@@ -322,7 +322,7 @@ Equivalently,
 Stacking the features $u_{l',j}$ and the CoM positions for the whole horizon and using Eq.~\ref{Eq:PosCMHorizon}, we get a vector $S^m_{l,k}$ similar to the one introduced in Eq.~\ref{Eq:MinVisualFeatures2} 
 
 \begin{equation*}
-S^m_{l',k} = A^u_{l',k} X_{k+1} + B^u_{l',k} Y_{k+1} + C_{l',k}^u,
+S^m_{l',k} = A^u_{l',k} C_x(k+1) + B^u_{l',k} C_y(k+1) + C_{l',k}^u,
 \end{equation*}
 
 with 
@@ -342,7 +342,7 @@ Every projected landmark provides two coordinates $(u,v)$ and we treat each one 
 Generalizing to all features, we have:
 \begin{equation}
 \label{Eq:FeaturesStacked}
- S^m_{l,k} = A_{l,k} X_{k+1} + B_{l,k} Y_{k+1} + C_{l,k},
+ S^m_{l,k} = A_{l,k} C_x(k+1) + B_{l,k} C_y(k+1) + C_{l,k},
 \end{equation}
 
 with $A_{l,k} = A^u_{l',k}$ for $l$ even and $A_{l,k} = A^v_{l',k}$ for $l$ odd. The same holds for $B_{l,k}$ and $C_{l,k}$.
@@ -352,31 +352,31 @@ Finally, we can introduce visual servoing in the walking generation with the QP:
 \begin{eqnarray*}
 \label{Eq:MainQP}
 \nonumber
- \min_{U_k} \; && \dfrac{\alpha}{2} \left\| \dddot{X}_k \right\|^2
- + \dfrac{\gamma}{2} \left\| Z_{k+1}^x - Z_{k+1}^{x_{ref}} \right\| \\
+ \min_{U(k)} \; && \dfrac{\alpha}{2} \left\| \dddot{C}_x(k) \right\|^2
+ + \dfrac{\gamma}{2} \left\| Z_x(k+1) - Z_x^{ref}(k+1) \right\| \\
  \nonumber
- && + \dfrac{\alpha}{2} \left\| \dddot{Y}_k \right\|^2
- + \dfrac{\gamma}{2} \left\| Z_{k+1}^y - Z_{k+1}^{y_{ref}} \right\| \\
+ && + \dfrac{\alpha}{2} \left\| \dddot{C}_y(k) \right\|^2
+ + \dfrac{\gamma}{2} \left\| Z_y(k+1) - Z_y^{ref}(k+1) \right\| \\
  \nonumber
  && + \dfrac{\beta}{2} \sum\limits_{l=0}^{M}  [S^d_{l}- S^m_{l,k}]^{\transpose} W [S^d_{l} - S^m_{l,k}],
 \end{eqnarray*}
 
 and as a canonical QP:
 \begin{equation*}
-\underset{U_k}{\min} \; \dfrac{1}{2} U_k^{\transpose} Q_k U_k + p_k^{\transpose} U_k
+\underset{U(k)}{\min} \; \dfrac{1}{2} U(k)^{\transpose} Q(k) U(k) + p(k)^{\transpose} U(k)
 \end{equation*}
 
 \text{ with }
 \begin{equation*}
-Q_k = \left( \begin{array}{cc}
-Q_k' & 0 \\
-0 & Q_k'
+Q(k) = \left( \begin{array}{cc}
+Q(k)' & 0 \\
+0 & Q(k)'
 \end{array}
- \right) + \hat{Q}_k,
+ \right) + \hat{Q}(k),
 \end{equation*}
 
 \begin{equation*}
- Q_k' = \left(
+ Q(k)' = \left(
  \begin{array}{cc}
  \alpha I + \gamma U^{\transpose}_{z}U_{z} & - \gamma U^{\transpose}_{z}V \\
  -\gamma V^{\transpose} U_{z} & \gamma V^{\transpose} V
@@ -385,7 +385,7 @@ Q_k' & 0 \\
 \end{equation*}
 
 \begin{equation*}
- \hat{Q}_k = \left(
+ \hat{Q}(k) = \left(
  \begin{matrix}
  \beta \sum\limits_l U_{p}^{\transpose} A_{l,k}^{\transpose} {W} A_{l,k} U_{p} & 0 & \beta \sum\limits_l U_{p}^{\transpose} A_{l,k}^{\transpose} {W} B_{l,k} U_{p} & 0\\
  0 & 0 & 0 & 0 \\
@@ -395,27 +395,27 @@ Q_k' & 0 \\
  \right)
 \end{equation*}
 
-and $p_k = p_k' + \hat{p}_k$,
+and $p(k) = p(k)' + \hat{p}(k)$,
 
 \begin{equation*}
- p'_k = 
+ p'(k) = 
  \left(
  \begin{array}{c}
- \gamma U^{\transpose}_{z}(S_{z} \hat{x}_k - V_c X_k^{fc}) \\
- -\gamma V^{\transpose}(S_{z}\hat{x}_k - V_c X_k^{fc}) \\
- \gamma U^{\transpose}_{z}(S_{z} \hat{y}_k - V_c Y_k^{fc}) \\
- -\gamma V^{\transpose} (S_{z}\hat{y}_k - V_c Y_k^{fc})
+ \gamma U^{\transpose}_{z}(S_{z} \hat{c}_x(k) - V_c \hat{F}_x(k) \\
+ -\gamma V^{\transpose}(S_{z}\hat{c}_x(k) - V_c \hat{F}_x(k) ) \\
+ \gamma U^{\transpose}_{z}(S_{z} \hat{c}_y(k) - V_c \hat{F}_y(k) ) \\
+ -\gamma V^{\transpose} (S_{z}\hat{c}_y(k) - V_c \hat{F}_y(k) )
  \end{array}
  \right),
 \end{equation*}
 
 \begin{equation*}
- \hat{p}_k = 
+ \hat{p}(k) = 
  \left(
  \begin{matrix}
- \beta  \sum\limits_l U_{u}^{\transpose} A_{l,k}^{\transpose} W [A_{l,k} U_{s} \hat{x}_k + B_{l,k} U_{s} \hat{y}_k + C_{l,k} - S^d_l]\\
+ \beta  \sum\limits_l U_{u}^{\transpose} A_{l,k}^{\transpose} W [A_{l,k} U_{s} \hat{c}_x(k) + B_{l,k} U_{s} \hat{c}_y(k) + C_{l,k} - S^d_l]\\
  0 \\
- \beta  \sum\limits_l U_{p}^{\transpose} B_{l,k}^{\transpose} W [A_{l,k} U_{s} \hat{x}_k + B_{l,k} U_{s} \hat{y}_k + C_{l,k} - S^d_l ]\\
+ \beta  \sum\limits_l U_{p}^{\transpose} B_{l,k}^{\transpose} W [A_{l,k} U_{s} \hat{c}_x(k) + B_{l,k} U_{s} \hat{c}_y(k) + C_{l,k} - S^d_l ]\\
  0
  \end{matrix}
  \right).
@@ -428,34 +428,34 @@ One must note in Eq.~\ref{Eq:MainQP}, unlike the velocity controlled PG, this QP
 
 So far, we have proposed a scheme to control the trajectory of the center of mass in the $xy$ plane. However, introducing the rotation angle in the minimization problem is not straightforward without losing linearity. Furthermore, the rotation angle plays a very important role here since sometimes most of the error between the desired features $s^d$ and the predicted features $s^m$ may be due to the angle between the robot and the features.
 
-An extension of the original linear MPC scheme with automatic footstep placement that deals with a reference angular velocity has been proposed in~\citep{HerdtIROS2010}. The approach is a decoupled solution, that is, it estimates first the optimal rotation angles and afterwards introduces these values as known in the main QP (as the matrix ${^o \mathbf R_{m,j}}$). This scheme should not affect the stability of the walking since inertial effects are not taken into account.
+An extension of the original linear MPC scheme with automatic footstep placement that deals with a reference angular velocity has been proposed in~\citep{HerdtIROS2010}. The approach is a decoupled solution, that is, it estimates first the optimal rotation angles and afterwards introduces these values as known in the main QP (as the matrix ${^o R_{m,j}}$). This scheme should not affect the stability of the walking since inertial effects are not taken into account.
 
 The same decoupled solution is used in this approach. Hence, in a first stage, we optimize the orientations in the MPC time window by  
 
 {\small
 \begin{eqnarray}
- \min\limits_{\dddot{\Theta}_{k},\dddot{\Theta}^{f}_k }  &&  \dfrac{\beta}{2} \left\| \Theta_{k+1} - \Theta^{0} \right\|^2 + \dfrac{\gamma}{2} \left\| \Theta^{f}_{k+1} - \Theta^{0} \right\|^2 \\
-\nonumber && + \dfrac{\alpha}{2} \left\| \dddot{\Theta}_{k} \right\|^2 + \dfrac{\alpha}{2} \left\| \dddot{\Theta}^f_{k} \right\|^2,
+ \min\limits_{\dddot{C}_{\theta}(k),\dddot{F}_{\theta}(k) }  &&  \dfrac{\beta}{2} \left\| C_{\theta}(k+1) - \Theta^{0} \right\|^2 + \dfrac{\gamma}{2} \left\| F_{\theta}(k+1) - \Theta^{0} \right\|^2 \\
+\nonumber && + \dfrac{\alpha}{2} \left\| \dddot{C}_{\theta}(k) \right\|^2 + \dfrac{\alpha}{2} \left\| \dddot{F}_{\theta}(k) \right\|^2,
 \end{eqnarray}
 }
 
-where, with the same notations as for $\dddot{X}_k$ and $\dddot{Y}_k$, $\dddot{\Theta}_{k}$ is the sequence of $N$ jerk values to be applied, and $\Theta_{k+1}$ is the sequence of predicted $\theta$ values, i.e. the orientations of the trunk,  
+where, with the same notations as for $\dddot{C}_x(k)$ and $\dddot{C}_y(k)$, $\dddot{C}_{\theta}(k)$ is the sequence of $N$ jerk values to be applied, and $C_{\theta}(k+1)$ is the sequence of predicted $\theta$ values, i.e. the orientations of the trunk,  
 
 $$
-\Theta_{k+1} \stackrel{\mbox{\tiny def}}{=} (\theta_{k+1},...,\theta_{k+N})^{\transpose},
+C_{\theta}(k+1) \stackrel{\mbox{\tiny def}}{=} (c_{\theta}(k+1),...,c_{\theta}(k+N))^{\transpose},
 $$
 
-and similarly for $\Theta^f_{k+1}$, the feet orientations. Finally, as a reference orientation $\Theta^{0}$ is defined once for all at the starting configuration as a target feet orientation. Several conventions exist but in this paper, the trunk orientation $\Theta_{k}$ is trying to follow the flying foot orientation $\Theta^f_{k}$. The flying foot is the only one which can move during the single support phase. Indeed obviously the support foot is fixed, and both feet are fixed during the double support phase. Finally zero speed, and zero acceleration are specified at the beginning and the end of the trajectories.
+and similarly for $F_{\theta}(k+1)$, the feet orientations. Finally, as a reference orientation $\Theta^{0}$ is defined once for all at the starting configuration as a target feet orientation. Several conventions exist but in this paper, the trunk orientation $C_{\theta}(k)$ is trying to follow the flying foot orientation $F_{\theta}(k)$. The flying foot is the only one which can move during the single support phase. Indeed obviously the support foot is fixed, and both feet are fixed during the double support phase. Finally zero speed, and zero acceleration are specified at the beginning and the end of the trajectories.
 
 Then in a second stage, we introduce these angles as constant in the main QP (Eq.~\ref{Eq:MinJerk}). This approach gives us the advantage of introducing the following constraints,
 
 \begin{eqnarray}
 \label{Eq:RotConstFT}
-| \Theta_{k+1} - \Theta^f_{k+1}| < \Theta^{FT}_{max} \\
+| C_{\theta}(k+1) - F_{\theta}(k+1)| < \Theta^{FT}_{max} \\
 \label{Eq:RotConstLR}
-| \Theta^{f,L}_{k+1} - \Theta^{f,R}_{k+1}| < \Theta^{LR}_{max} \\
+| C_{\theta}^{f,L}(k+1) - C_{\theta}^{f,R}(k+1)| < \Theta^{LR}_{max} \\
 \label{Eq:RotConstVis}
-| \Theta_{k+1}| < \Theta^{visibility}.
+| C_{\theta}(k+1)| < \Theta^{visibility}.
 \end{eqnarray}
 
 Eq.~\ref{Eq:RotConstFT} constraint the maximum rotation between feet and trunk, Eq.~\ref{Eq:RotConstLR} between both feet, and Eq.~\ref{Eq:RotConstVis} sets a rotation limit of the trunk to keep the visibility of the landmarks.
@@ -463,24 +463,24 @@ Eq.~\ref{Eq:RotConstFT} constraint the maximum rotation between feet and trunk, 
 \subsection{Visual constraints}
 
 
-The introduction of visual constraints can be done by using Eq.~\ref{Eq:FeaturesUReduced} and Eq.~\ref{Eq:FeaturesVReduced}. Any linear constraint in the image plane $(u,v)$, can be expressed as a linear constraint in the variables $U_k$.
+The introduction of visual constraints can be done by using Eq.~\ref{Eq:FeaturesUReduced} and Eq.~\ref{Eq:FeaturesVReduced}. Any linear constraint in the image plane $(u,v)$, can be expressed as a linear constraint in the variables $U(k)$.
 
 Furthermore a convex polytope can be expressed under a linear form. It means that we can have time- and landmark-varying constraints. Commonly we only want all landmarks to follow trajectories inside of some convex polytope. Hence, constraints become constant in time and for all landmarks. This can be written as:
 
 \begin{eqnarray}
- \mathbf A'
+  A'
  \left(
  \begin{matrix}
- \mathbf A^u_{l',k} X_{k+1} + \mathbf B^u_{l',k} Y_{k+1} + \mathbf C^u_{l',k} \\
- \mathbf A^v_{l',k} X_{k+1} + \mathbf B^v_{l',k} Y_{k+1} + \mathbf C^v_{l',k}
+  A^u_{l',k} C_x(k+1) +  B^u_{l',k} C_y(k+1) +  C^u_{l',k} \\
+  A^v_{l',k} C_x(k+1) +  B^v_{l',k} C_y(k+1) +  C^v_{l',k}
  \end{matrix}
- \right) &\leq& \mathbf b'
+ \right) &\leq&  b'
  \label{Eq:VSConstraintsOptimVar}\\
 \nonumber
-\text{and then,} ~ \mathbf A'' U_k &\leq& \mathbf b'',
+\text{and then,} ~  A'' U_k &\leq&  b'',
 \end{eqnarray}
 
-where matrix $\mathbf A'$ and vector $\mathbf b'$ are related with the image constraints. For example, bound constraints in the $(u,v)$ coordinates like visibility constraints are easily expressed in terms of Eq.~\ref{Eq:VSConstraintsOptimVar} and are introduced directly in the QP.
+where matrix $ A'$ and vector $ b'$ are related with the image constraints. For example, bound constraints in the $(u,v)$ coordinates like visibility constraints are easily expressed in terms of Eq.~\ref{Eq:VSConstraintsOptimVar} and are introduced directly in the QP.
 
 
 \subsection{Qualitative comparison with the classical approach}
@@ -563,7 +563,7 @@ Now, in a second experiment, we evaluate the trajectory with rotation. We recall
  \includegraphics[scale=.2]{Chap4-Visual-Servoing/vels3_hrp2.pdf}
  %}
 \end{minipage}
- \caption[]{\label{Fig:Results3}\small{The behavior of our system in the third simulation, involving rotation, with the same graphical conventions as in Fig.~\ref{Fig:Results1}. In the velocities graph (rigth, bottom) we added the rotation velocity in black. The robot is walking in the sagittal direction most of the time, after an initial rotation. The amplitude of the oscillations of the CoM and subsequently of the features are smaller than in the first simulation. However, we can see a non-negligible component of velocity in the positive $y$ direction, since the angle is not fully compensated. When the angle is almost fully compensated, this component disappears.}}
+ \caption[]{\label{Fig:Results3}\small{The behavior of our system in the third simulation, involving rotation, with the same graphical conventions as in Fig.~\ref{Fig:Results1}. In the velocities graph (right, bottom) we added the rotation velocity in black. The robot is walking in the sagittal direction most of the time, after an initial rotation. The amplitude of the oscillations of the CoM and subsequently of the features are smaller than in the first simulation. However, we can see a non-negligible component of velocity in the positive $y$ direction, since the angle is not fully compensated. When the angle is almost fully compensated, this component disappears.}}
  \end{figure*}
 
 \begin{figure*}[h]
@@ -583,10 +583,10 @@ Now, in a second experiment, we evaluate the trajectory with rotation. We recall
  \includegraphics[scale=.2]{Chap4-Visual-Servoing/vels4_hrp2_1.pdf}
  %}
 \end{minipage}
- \caption[]{\label{Fig:Results4}\small{The behavior of our system in the fourth simulation, with the same graphical conventions as in Fig.~\ref{Fig:Results3}. The robot is following a trajectory similar to the one of Fig.~\ref{Fig:Results3}. After a few footsteps, a strong perturbation is applied to the CoM, inducing a peak in the velocities graph (rigth, bottom). This perturbation is small in distance metric, so it is not visible in the features trajectories. The perturbation is quasi-instantly recovered.}}
+ \caption[]{\label{Fig:Results4}\small{The behavior of our system in the fourth simulation, with the same graphical conventions as in Fig.~\ref{Fig:Results3}. The robot is following a trajectory similar to the one of Fig.~\ref{Fig:Results3}. After a few footsteps, a strong perturbation is applied to the CoM, inducing a peak in the velocities graph (right, bottom). This perturbation is small in distance metric, so it is not visible in the features trajectories. The perturbation is quasi-instantly recovered.}}
  \end{figure*}
 
-We have already explained how a local linearization is made to maintain the QP formulation. The performance of this linearization depends of the distance travelled inside the horizon, which depends on the velocity of the robot and the size of the horizon. In Fig.~\ref{Fig:Results5}, we can see the linearized and real features trajectories for a given CoM trajectory. As expected, close to the beginning (the linearization point) the trajectories are quite similar, while the final positions differ more. This is an extreme situation, since usual metric displacements in the horizon are much smaller than this one. In any case, horizon displacements are bigger when the visual errors are bigger (the robot is far from the desired position) in which case the robot just needs a tendency. But when the errors are getting smaller, the robot needs more precision. In this case, the displacements in the horizon becomes smaller so that the difference between the real model and the linearized one becomes negligible.
+We have already explained how a local linearization is made to maintain the QP formulation. The performance of this linearization depends of the distance traveled inside the horizon, which depends on the velocity of the robot and the size of the horizon. In Fig.~\ref{Fig:Results5}, we can see the linearized and real features trajectories for a given CoM trajectory. As expected, close to the beginning (the linearization point) the trajectories are quite similar, while the final positions differ more. This is an extreme situation, since usual metric displacements in the horizon are much smaller than this one. In any case, horizon displacements are bigger when the visual errors are bigger (the robot is far from the desired position) in which case the robot just needs a tendency. But when the errors are getting smaller, the robot needs more precision. In this case, the displacements in the horizon becomes smaller so that the difference between the real model and the linearized one becomes negligible.
 
 \begin{figure}[h]
  \centering
@@ -594,7 +594,7 @@ We have already explained how a local linearization is made to maintain the QP f
  \caption{\label{Fig:Results5}\small{In this figure, we show the trajectory of the visual features in one iteration of the QP, and compare the evolution of the features obtained by the linearization model (green lines) and features obtained by the exact non-linear model (red lines).}}
  \end{figure}
 
-Due to the walking nature, we have oscillations in the features trajectories. One of the main advantages of using MPC is that it naturally filters out these oscillations because we minize the errors in a full cycle. It is remarkable that, in comparison with the decoupled approach ~\cite{DuneIROS2010} we do not need to model explicitly the sway motion of the robot and the resulting motion of the visual features. The system could oscillate inside the horizon (and it does), but at the end, the optimal control is taken without oscillations (Fig.~\ref{Fig:Results6}). In Fig.~\ref{Fig:Results6}, we only show three features errors evolution, the $u$ component of each left (black) and right (red) lower side corners, since the upper ones are, by symmetry, the same. And we complete with a single $v$ component (blue) for all the corners, with the same symmetry argument. 
+Due to the walking nature, we have oscillations in the features trajectories. One of the main advantages of using MPC is that it naturally filters out these oscillations because we minimize the errors in a full cycle. It is remarkable that, in comparison with the decoupled approach ~\cite{DuneIROS2010} we do not need to model explicitly the sway motion of the robot and the resulting motion of the visual features. The system could oscillate inside the horizon (and it does), but at the end, the optimal control is taken without oscillations (Fig.~\ref{Fig:Results6}). In Fig.~\ref{Fig:Results6}, we only show three features errors evolution, the $u$ component of each left (black) and right (red) lower side corners, since the upper ones are, by symmetry, the same. And we complete with a single $v$ component (blue) for all the corners, with the same symmetry argument. 
 
 \begin{figure}[ht]
  \centering
@@ -617,7 +617,7 @@ Due to the walking nature, we have oscillations in the features trajectories. On
  \subfigure{\includegraphics[scale=.18]{Chap4-Visual-Servoing/features_mpc}} \\
  \subfigure{\includegraphics[scale=.18]{Chap4-Visual-Servoing/footsteps_classical-vs}} ~
  \subfigure{\includegraphics[scale=.18]{Chap4-Visual-Servoing/features_classical-vs}}
- \caption{\label{Fig:Comparisons-approaches} Comparison between the coupled (upper part) and decoupled approaches (lower part). On the left side, we depict the robot trajectory with the footsteps (red and blue), and the CoM (black) and CoP (pink) trajectories. On the right side, we depict the evolution of the instantaneus features positions during the experiment (from the red rectangle, at the beginning of the simulation, to the blue one, at the end).}
+ \caption{\label{Fig:Comparisons-approaches} Comparison between the coupled (upper part) and decoupled approaches (lower part). On the left side, we depict the robot trajectory with the footsteps (red and blue), and the CoM (black) and CoP (pink) trajectories. On the right side, we depict the evolution of the instantaneous features positions during the experiment (from the red rectangle, at the beginning of the simulation, to the blue one, at the end).}
  \end{figure*}
 
 \begin{figure*}[ht]
