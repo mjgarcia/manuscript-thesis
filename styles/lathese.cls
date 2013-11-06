@@ -320,7 +320,7 @@
 	\begin{center}\sc \large\@CIMAT\end{center}\vspace{.2in}
 	\begin{center}\sc \LARGE Tesis\end{center}\vspace{.2in}
 	\begin{center}para obtener el grado de\\
-	 \vspace{.1in} {\large Maestro en Ciencias con Especialidad en Computaci\'on y Matem\'aticas Industriales}\\
+	 \vspace{.1in} {\large Maestr\'ia en Ciencias con Especialidad en Computaci\'on y Matem\'aticas Industriales}\\
 	 \if@final{\vspace{.1in}presentada el \@TheDate}
 	 \else{\vspace{.3in}\LARGE Draft: \@TheDraftDate}\fi
 	 \end{center} \vspace{0.4in}
