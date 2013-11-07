@@ -33,7 +33,7 @@ Consider, as in the previous sections, that $k$ is a discretized time index. The
 To use this algorithm with stereo data and generate local data $D_k$, a disparity map from a pair of rectified images is estimated, from which the depth map $D_k$ is derived, supposing the stereo rig is completely calibrated. The literature of algorithms that estimate disparity maps is huge, but since a real time one is needed for this application, the one proposed in~\citep{Geiger2010} has been used. This algorithm estimates a piece-wise disparity map using an initial sparse disparity map of high textured points as vertices that define a triangulation of the image. Then, the dense disparity map of each sub-region is estimated by using the initial, sparse disparity map as a prior in a probabilistic scheme. The steps of the reconstruction process are illustrated in Fig.~\ref{Fig:Reconstruction1}
 
 \subsection{Pre-processing}
-As mentioned above, it is necesary to apply a bilateral filter to the raw depth map to smooth it preserving the borders.
+As mentioned above, it is necesary to apply a bilateral filter to the raw depth map to smooth it while preserving the borders.
 Then we project the pixel $\mathbf{u}$ to obtain a 3D the point $\mathbf{p}$. With the projection of all the pixels, we generate a vertex map,
 
 \begin{equation}
@@ -78,15 +78,15 @@ The global volumetric grid at time $k$ is formed by the weighted average of all 
  W_k(\mathbf{p}) &=& W_{k-1}(\mathbf{p}) + W_{D_{k}}(\mathbf{p}).
 \end{eqnarray*}
 
-With the previous equation we integrate incrementally the current measurement $\{ W_{D_{k}}(\mathbf{p}), F_{D_{k}}(\mathbf{p}) \}$ into the previous estimation of the grid $\{W_{k-1}(\mathbf{p}), F_{k-1}(\mathbf{p})\}$ to get current estimation of the grid $\{W_{k}(\mathbf{p}), F_{k}(\mathbf{p})\}$
+With the previous equation, we integrate incrementally the current measurement $\{ W_{D_{k}}(\mathbf{p}), F_{D_{k}}(\mathbf{p}) \}$ into the previous estimation of the grid $\{W_{k-1}(\mathbf{p}), F_{k-1}(\mathbf{p})\}$ to get current estimation of the grid $\{W_{k}(\mathbf{p}), F_{k}(\mathbf{p})\}$
 
 \subsection{Surface prediction}
 With the latest reconstruction we can compute a dense surface prediction by rendering the surface at the zero level of the TSDF on a virtual camera with the current estimation of $T_{g,k}$. This process will give us an estimated vertex and normal maps $\hat{\mathbf{V}}_k$ and $\hat{\mathbf{N}}_k$ that we will use in the camera pose estimation.
-The vertex map is predicted by marching each ray $T_{g,k}K^{-1}\mathbf{u}$ stopping when a zero crossing ($+\nu e$ to $-\nu e$ for the visible side) is found from visible side to non-visible side indicating surface interface.
-It may find a back face or exit of the working volume so there is no surface measurement in thar cases.
+The vertex map is predicted by marching each ray $T_{g,k}K^{-1}\mathbf{u}$ and stopping when a zero crossing ($+\nu e$ to $-\nu e$ for the visible side) is found from visible side to non-visible side indicating surface interface.
+It may find a back face or exit of the working volume so there is no surface measurement in that cases.
 The normal map is computed as the gradient of the surface interface at $\mathbf{p}$ using numerical derivative:
 \begin{equation}
- R_{g,k} \hat{\mathbf{N}}_g^k(\mathbf{u}) = \nu \nabla F(\mathbf{p}), \nabla F(\mathbf{p}) = \left [ \frac{\partial F}{\partial x}, \frac{\partial F}{\partial y}. \frac{\partial F}{\partial z} \right ]^T
+ R_{g,k} \hat{\mathbf{N}}_g^k(\mathbf{u}) = \nu \nabla F(\mathbf{p}), \nabla F(\mathbf{p}) = \left [ \frac{\partial F}{\partial x}, \frac{\partial F}{\partial y}, \frac{\partial F}{\partial z} \right ]^T
 \end{equation}
 further this derivative is scaled.
 
@@ -103,11 +103,11 @@ so we have a vextex and normal maps in the interpolated point in the global fram
 \subsection{Sensor pose estimation}
 
 The tracking is done by aligning the current surface measurement ($\mathbf{V}_k$,$\mathbf{N}_k$) against the model predicted from the previous frame ($\hat{\mathbf{V}}_{k-1}$,$\hat{\mathbf{N}}_{k-1}$).
-In first place, projective data association algorithm is used to get a set of vetex correspondences $\{ \mathbf{V}_k(\mathbf{u}), \hat{\mathbf{B}}_{k-1}(\hat{\mathbf{u}}) \mid \Omega(\mathbf{u}) \neq null \}$ by computing the perspectively projected point $\hat{\mathbf{u}} = \pi(K \tilde{T}_{k-1.k} \dot{\mathbf{V}}_k(\mathbf{u}))$ using an estimate of the frame transform and testing the predicted and measured vertex and normal for compatibility.
+In first place, a projective data association algorithm is used to get a set of vertex correspondences $\{ \mathbf{V}_k(\mathbf{u}), \hat{\mathbf{B}}_{k-1}(\hat{\mathbf{u}}) \mid \Omega(\mathbf{u}) \neq null \}$ by computing the perspectively projected point $\hat{\mathbf{u}} = \pi(K \tilde{T}_{k-1.k} \dot{\mathbf{V}}_k(\mathbf{u}))$ using an estimate of the frame transform and testing the predicted and measured vertex and normal for compatibility.
 
 An iterative solution $\tilde{T}^z_{g,k}$ is obtained by minimizing a linearized version of the global point-plane energy around the previous estimate $\tilde{T}^{z-1}_{g,k}$. Using the small angle assumption for an incremental transform $\tilde{T}^z_{inc}$, the update is $\tilde{T}^z_{g,k} = \tilde{T}^z_{inc}\tilde{T}^{z-1}_{g,k}$.
 The minimization is done using the incremental point transfer $\tilde{\mathbf{V}}^g_k(\mathbf{u}) = \tilde{T}^{z-1}_{g,k} \dot{\mathbf{V}}_k(\mathbf{u})$. 
-Arranging the parameters of the transformation as $ \mathbf{x} = (\beta,\gamma,\alpha,t_x,t_y.t_z)^T$ we can write
+Arranging the parameters of the transformation as $ \mathbf{x} = (\beta,\gamma,\alpha,t_x,t_y,t_z)^T$ we can write
 \begin{equation}
 \tilde{T}^z_{g,k} \dot{\mathbf{V}}_k(\mathbf{u}) = \tilde{R}^z \tilde{\mathbf{V}}^g_k(\mathbf{u}) + \tilde{\mathbf{t}}^z = \mathbf{G}(\mathbf{u})\mathbf{x} + \tilde{\mathbf{V}}^g_k(\mathbf{u}).
 \end{equation}
@@ -115,14 +115,14 @@ Arranging the parameters of the transformation as $ \mathbf{x} = (\beta,\gamma,\
 An iteration is obtained by solving
 
 \begin{equation}
-\underset{\mathbf{x} \in  \mathbb{R}^6 }{min} \sum_{\Omega_k (\mathbf{u}) \neq null} \left \| E \right \|^2_2
+\underset{\mathbf{x} \in  \mathbb{R}^6 }{\min} \sum_{\Omega_k (\mathbf{u}) \neq null} \left \| E \right \|^2_2
 \end{equation}
 
 \begin{equation}
  E = \tilde{\mathbf{N}}^g_{k-1}(\mathbf{u})^T \left( \mathbf{G}(\mathbf{u})\mathbf{x} + \tilde{\mathbf{V}}^g_k(\mathbf{u}) - \hat{\mathbf{V}}^g_{k-1}(\hat{\mathbf{u}}) \right)
 \end{equation}
 
-The minimum can be found analytically by derivating the objective function and setting to zero. A $6 \times 6$ symmetric linear system is generated for each correspondence. Solving for $\mathbf{x}$, we obtain $\tilde{T}^z_{g,k}$.
+The minimum can be found analytically by derivating the objective function and setting the derivative to zero. A $6 \times 6$ symmetric linear system is generated for each correspondence. Solving for $\mathbf{x}$, we obtain $\tilde{T}^z_{g,k}$.
 The data association and pose estimation is embedded into a coarse to fine framework using the bottom 3 levels of the vertex and normal maps pyramid, the camera pose results of the last iteration.
 
 \section{Results}
@@ -177,4 +177,4 @@ frames into the volumetric grid.}
 
 \section{Conclusion}
 
-In this chapter we presented the connection of existing algorithms of efficient stereo matching and 3D reconstruction to be used in a more complex system to make the robot walk on rough terrain. This connection was done over ROS and tested successfully with scenes of flat floor and stairs with small objects on them. The output of this algorithm provides a model of the world to a control system which implements a compliant walking scheme.
+In this chapter we presented a combination of existing algorithms for efficient stereo matching and 3D reconstruction to be used in a more complex system to make the robot walk on rough terrain. This connection was done over ROS and tested successfully with scenes of flat floor and stairs with small objects on them. The output of this algorithm provides a model of the world to a control system which implements a compliant walking scheme.
