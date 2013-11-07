@@ -117,7 +117,7 @@ Eq.~\ref{Eq:ConstraintDynamicModel} is the dynamic model, that estimates the new
 
 Eq.~\ref{Eq:ConstraintProjection} is also a non-linear function that estimates the output of the model $s^m_j$, given the current state $q_j$. This equation implements the pinhole camera projection model.
 
-Matrix $W_j$ in Eq.~\ref{Eq:MinVisualFeatures} is a positive definite matrix  used to weight errors in the prediction horizon. As suggested in~\cite{Allibert2010}, we   consider equal weights for all features errors, $W_j = diag(w_j)$. 
+Matrix $W_j$ in Eq.~\ref{Eq:MinVisualFeatures} is a positive definite matrix  used to weight errors in the prediction horizon. As suggested in~\citep{Allibert2010}, we   consider equal weights for all features errors, $W_j = diag(w_j)$. 
 
 Here, $s^m_j$ is the collection of all the predicted features at time $j$, that is, for $M$ features $s^m_j = ( s_{1,j}^m, s_{2,j}^m, \hdots, s_{M,j}^m )^{\transpose} $. Eq.~\ref{Eq:MinVisualFeatures} can be rewritten as
 
@@ -495,7 +495,6 @@ Finally, we know classical visual servoing control laws have very good performan
 
 
 \section{Simulation results}
-\label{sec:results}
 
 \subsection{Simulation results on the MPC-based approach only}
 
@@ -594,7 +593,7 @@ We have already explained how a local linearization is made to maintain the QP f
  \caption{\label{Fig:Results5}\small{In this figure, we show the trajectory of the visual features in one iteration of the QP, and compare the evolution of the features obtained by the linearization model (green lines) and features obtained by the exact non-linear model (red lines).}}
  \end{figure}
 
-Due to the walking nature, we have oscillations in the features trajectories. One of the main advantages of using MPC is that it naturally filters out these oscillations because we minimize the errors in a full cycle. It is remarkable that, in comparison with the decoupled approach ~\cite{DuneIROS2010} we do not need to model explicitly the sway motion of the robot and the resulting motion of the visual features. The system could oscillate inside the horizon (and it does), but at the end, the optimal control is taken without oscillations (Fig.~\ref{Fig:Results6}). In Fig.~\ref{Fig:Results6}, we only show three features errors evolution, the $u$ component of each left (black) and right (red) lower side corners, since the upper ones are, by symmetry, the same. And we complete with a single $v$ component (blue) for all the corners, with the same symmetry argument. 
+Due to the walking nature, we have oscillations in the features trajectories. One of the main advantages of using MPC is that it naturally filters out these oscillations because we minimize the errors in a full cycle. It is remarkable that, in comparison with the decoupled approach ~\citep{DuneIROS2010} we do not need to model explicitly the sway motion of the robot and the resulting motion of the visual features. The system could oscillate inside the horizon (and it does), but at the end, the optimal control is taken without oscillations (Fig.~\ref{Fig:Results6}). In Fig.~\ref{Fig:Results6}, we only show three features errors evolution, the $u$ component of each left (black) and right (red) lower side corners, since the upper ones are, by symmetry, the same. And we complete with a single $v$ component (blue) for all the corners, with the same symmetry argument. 
 
 \begin{figure}[ht]
  \centering
@@ -634,4 +633,4 @@ In Fig.~\ref{Fig:Comparisons-velocitieserrors} left, we present the profiles of 
 
 \section{Conclusion}
 \label{sec:conclusions}
-Since the original proposal for walking generation proposed in~\cite{Kajita2003}, most of the efforts in the literature have focused in dynamical balance and stability. In this chapter, we have proposed a novel approach to close the control loop by introducing visual information into the walking pattern generation. Our online pattern generator integrates the regulation of the relative pose of 3D image features while simultaneous ensuring safety and stability. In order to keep the optimization formulation as a QP, the perspective projection equations have been linearized around the features positions at the beginning of each cycle. However, our current approach uses 3-D information that strongly depends on the localization. As an ongoing work, we wish to drop the need of 3-D information by predicting the image positions of the landmarks in terms on the velocity of the robot in the horizon (IBVS); we also plan to perform real experiments on the HRP-2 humanoid platform.
+Since the original proposal for walking generation proposed in~\citep{Kajita2003}, most of the efforts in the literature have focused in dynamical balance and stability. In this chapter, we have proposed a novel approach to close the control loop by introducing visual information into the walking pattern generation. Our online pattern generator integrates the regulation of the relative pose of 3D image features while simultaneous ensuring safety and stability. In order to keep the optimization formulation as a QP, the perspective projection equations have been linearized around the features positions at the beginning of each cycle. However, our current approach uses 3-D information that strongly depends on the localization. As an ongoing work, we wish to drop the need of 3-D information by predicting the image positions of the landmarks in terms on the velocity of the robot in the horizon (IBVS); we also plan to perform real experiments on the HRP-2 humanoid platform.

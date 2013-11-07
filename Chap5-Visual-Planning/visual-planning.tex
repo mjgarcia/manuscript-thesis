@@ -12,13 +12,13 @@ Motion planning aims to take the robot from an initial to a final position while
 
 For visual servoing, localization, surveillance, or any robotic task based on the observation of visual cues, it is important to ensure that the robot under control does not lose sight of the landmark(s) used as a visual reference. Hence, several works have been proposed to provide motion planners that guarantee landmark visibility, mainly for wheeled robots.
 
-With this concern in mind, we borrow one such global planner, described in~\cite{jib-IJHR2010},  as a base tool for generating paths that guarantee to enforce the required visual constraints while giving locally optimal trajectories in distance. This base planner for humanoid robots uses as an underlying model of motion, a disk-shaped non-holonomic Differential Drive Robot (DDR). In~\cite{jib-IJHR2010}, if a solution path is found for the DDR, it is converted into a solution path for the humanoid robot by generating a footprints sequence coherent with the humanoid dimensions. A nice property inherited from using the DDR model of motion is that the global planner is complete, i.e.  if a solution exists, it will give one, otherwise, it will say so.
+With this concern in mind, we borrow one such global planner, described in~\citep{jib-IJHR2010},  as a base tool for generating paths that guarantee to enforce the required visual constraints while giving locally optimal trajectories in distance. This base planner for humanoid robots uses as an underlying model of motion, a disk-shaped non-holonomic Differential Drive Robot (DDR). In~\citep{jib-IJHR2010}, if a solution path is found for the DDR, it is converted into a solution path for the humanoid robot by generating a footprints sequence coherent with the humanoid dimensions. A nice property inherited from using the DDR model of motion is that the global planner is complete, i.e.  if a solution exists, it will give one, otherwise, it will say so.
 
 However, even if, locally, the used motion primitives are optimal in distance, this approach does not necessarily give globally optimal trajectories. We will not detail the complete methodology here, but we recall the basic results hereafter.
 
-The aforementioned algorithm takes as an input a 2D map of the environment, with its obstacles and visual landmarks, an initial configuration of the robot in the plane, $(x_A,y_A,\theta_A)$, and a final (goal) configuration in the plane, $(x_B,y_B,\theta_B)$. Its output is a set of footprints in the plane to be followed by the robot. The building of this path follows a classical recursive strategy: A roadmap is built over the free space, which includes both, points free of collision with the obstacles in the environment and points that are not within the shadows cast by the landmarks. Then, the initial and final configurations are tested, to check whether the optimal primitives of~\cite{Salaris:2010} can connect them without colliding with forbidden regions. If the computed path is without collision, then the algorithm ends, otherwise the holonomic shortest path on the roadmap from the initial configuration to the final (if it exists) is divided in two parts by its middle point, and the whole process is repeated on the two sub-parts. 
+The aforementioned algorithm takes as an input a 2D map of the environment, with its obstacles and visual landmarks, an initial configuration of the robot in the plane, $(x_A,y_A,\theta_A)$, and a final (goal) configuration in the plane, $(x_B,y_B,\theta_B)$. Its output is a set of footprints in the plane to be followed by the robot. The building of this path follows a classical recursive strategy: A roadmap is built over the free space, which includes both, points free of collision with the obstacles in the environment and points that are not within the shadows cast by the landmarks. Then, the initial and final configurations are tested, to check whether the optimal primitives of~\citep{Salaris:2010} can connect them without colliding with forbidden regions. If the computed path is without collision, then the algorithm ends, otherwise the holonomic shortest path on the roadmap from the initial configuration to the final (if it exists) is divided in two parts by its middle point, and the whole process is repeated on the two sub-parts. 
 
-The resulting path is made of several parts, each one corresponding to a locally optimal path given from~\cite{Salaris:2010} (made of a combination of straight lines, logarithmic spirals and in-site rotations). This allows to define a set of $S$ sub-segments to be performed by the robot along locally optimal paths, which will be referred to as $(p^s,q^s)$, for $s=1\dots S$~:
+The resulting path is made of several parts, each one corresponding to a locally optimal path given from~\citep{Salaris:2010} (made of a combination of straight lines, logarithmic spirals and in-site rotations). This allows to define a set of $S$ sub-segments to be performed by the robot along locally optimal paths, which will be referred to as $(p^s,q^s)$, for $s=1\dots S$~:
 $$
 p^s = (x_p^s,y_p^s,\theta_p^s)^T \; ; \; q^s = (x_q^s,y_q^s,\theta_q^s)^T,
 $$
@@ -32,13 +32,13 @@ with $p^s$ the initial configuration and $q^s$ the final one. The complete compu
 
 \label{sec:reftrajectories}
 
-Let us focus on the execution of each sub-path $s$. Suppose that we start with the robot at some configuration close to $p^s$ (see Fig.~\ref{fig:paths}), because localization may not be perfect, and suppose that we want to reach the final configuration or sub-goal $q^s$, as determined in~\cite{jib-IJHR2010}.
+Let us focus on the execution of each sub-path $s$. Suppose that we start with the robot at some configuration close to $p^s$ (see Fig.~\ref{fig:paths}), because localization may not be perfect, and suppose that we want to reach the final configuration or sub-goal $q^s$, as determined in~\citep{jib-IJHR2010}.
 
 \subsection{Adapting the reference trajectory for the MPC}
 
 Without loss of generality, we suppose that the object of interest to be kept at sight by the robot is located at $L^s = (0,0)$. In all the following, $x,y,\theta$ will refer to coordinates w.r.t a global frame centered at this origin.
 
-It is noteworthy that, given the sub-goal $q^s =(x_q^s,y_q^s,\theta_q^s)^T$ to reach, and the landmark it is associated to, the work of~\cite{Salaris:2010} gives us a full synthesis of optimal paths in free space. This synthesis can be represented as a mapping $\sigma$:
+It is noteworthy that, given the sub-goal $q^s =(x_q^s,y_q^s,\theta_q^s)^T$ to reach, and the landmark it is associated to, the work of~\citep{Salaris:2010} gives us a full synthesis of optimal paths in free space. This synthesis can be represented as a mapping $\sigma$:
 $$
 \begin{array}{cccccc}
 \sigma & : & \mathbb{R}^2 & \mapsto & \mathbb{S}^1 \times \mathbb{R}^2\\
@@ -69,7 +69,7 @@ Our claim is that the knowledge of optimal policies at each point allows some fl
 \label{fig:paths}}
 \end{figure}
 
-In pattern generation algorithms such as~\cite{HerdtAR2010}, the cost function within the Model Predictive Control (MPC) window uses the configurations of the CoM (see Chap.~\ref{Chap:Locomotion-Control}). Here, focusing more specifically on the $(x,y,\theta)$ CoM coordinates, we handle as an input of the algorithm a reference trajectory to be followed, and a synthesis of shortest paths leading to a given objective, as a direct output from~\cite{Salaris:2010}. As depicted in Fig.~\ref{fig:paths}, at each configuration evaluated within the MPC, two forces should apply through the optimization scheme: one driving the robot to the ``correct'' orientation $\theta^*(x,y)$, and one making the velocities follow the shortest path, $(v(x,y),\omega(x,y))$, so we can follow the trajectories according to the optimal synthesis. Also, a strong visibility constraint should apply, to ensure the object of interest to stay visible. In Fig.~\ref{fig:fieldNoLateral}, we give an illustration of the shortest paths synthesis from~\cite{Salaris:2010}, displayed through the local orientations of optimal paths at each point of the plane, given the objective to reach (``end point'') and the landmark to keep in sight. 
+In pattern generation algorithms such as~\citep{HerdtAR2010}, the cost function within the Model Predictive Control (MPC) window uses the configurations of the CoM (see Chap.~\ref{Chap:Locomotion-Control}). Here, focusing more specifically on the $(x,y,\theta)$ CoM coordinates, we handle as an input of the algorithm a reference trajectory to be followed, and a synthesis of shortest paths leading to a given objective, as a direct output from~\citep{Salaris:2010}. As depicted in Fig.~\ref{fig:paths}, at each configuration evaluated within the MPC, two forces should apply through the optimization scheme: one driving the robot to the ``correct'' orientation $\theta^*(x,y)$, and one making the velocities follow the shortest path, $(v(x,y),\omega(x,y))$, so we can follow the trajectories according to the optimal synthesis. Also, a strong visibility constraint should apply, to ensure the object of interest to stay visible. In Fig.~\ref{fig:fieldNoLateral}, we give an illustration of the shortest paths synthesis from~\citep{Salaris:2010}, displayed through the local orientations of optimal paths at each point of the plane, given the objective to reach (``end point'') and the landmark to keep in sight. 
 
 
 %==================================================================
@@ -125,7 +125,7 @@ In pattern generation algorithms such as~\cite{HerdtAR2010}, the cost function w
 \centering
 %\vspace{2 mm}
 %\hspace{5 mm}
- \subfigure[Motion direction field resulting from the synthesis of~\cite{Salaris:2010}.]{
+ \subfigure[Motion direction field resulting from the synthesis of~\citep{Salaris:2010}.]{
   \includegraphics[scale=0.35]{Chap5-Visual-Planning/noLateral}
    \label{fig:fieldNoLateral}
    }
@@ -134,7 +134,7 @@ In pattern generation algorithms such as~\cite{HerdtAR2010}, the cost function w
   \includegraphics[scale=0.235]{Chap5-Visual-Planning/useLateral}
    \label{fig:fieldUseLateral}
    }
- \caption[]{Visualization of optimal motion directions $\theta^*(x,y)$. Both figures indicate the nature of optimal paths with the filling colors, and the tangent direction to the optimal curve all over a grid defined around the final point. In Fig.~\subref{fig:fieldNoLateral}, the field is computed directly from the primitives of~\cite{Salaris:2010}. The locus of in-site rotations is identifiable at the dark blue zone border. In Fig.~\subref{fig:fieldUseLateral}, the non-holonomy behavior close to this locus is replaced by lateral motions.\label{fig:field}}
+ \caption[]{Visualization of optimal motion directions $\theta^*(x,y)$. Both figures indicate the nature of optimal paths with the filling colors, and the tangent direction to the optimal curve all over a grid defined around the final point. In Fig.~\subref{fig:fieldNoLateral}, the field is computed directly from the primitives of~\citep{Salaris:2010}. The locus of in-site rotations is identifiable at the dark blue zone border. In Fig.~\subref{fig:fieldUseLateral}, the non-holonomy behavior close to this locus is replaced by lateral motions.\label{fig:field}}
 \end{figure*}
 
 \subsection{Using the optimal path synthesis within the MPC}
@@ -233,12 +233,12 @@ and then in a second stage, we introduce these angles as constant in the main QP
 \section{Including holonomic behavior}
 \label{sec:includingholonomic}
 
-Handling holonomic and non-holonomic behaviors together during locomotion has been previously been discussed in \cite{MombaurHumanoids2008} in a context of motion planning.
+Handling holonomic and non-holonomic behaviors together during locomotion has been previously been discussed in \citep{MombaurHumanoids2008} in a context of motion planning.
 
-One of the most visible disadvantages of the optimal non-holonomic paths given from~\cite{jib-IJHR2010} is the presence of in-site rotations, that are not efficient in terms of footsteps number.
+One of the most visible disadvantages of the optimal non-holonomic paths given from~\citep{jib-IJHR2010} is the presence of in-site rotations, that are not efficient in terms of footsteps number.
 One solution is to use a different formulation of the cost function using weights according to the robot direction and control the head.
 But including this vision based control in Eq.~\ref{Eq:MinJerk} is incompatible with a QP formulation.
-A strategy we propose here is to take advantage of the fact that the set of points where in-site rotations occur is very well defined geometrically in the plane, as a direct consequence of the synthesis from~\cite{Salaris:2010}. As illustrated in Fig.~\ref{fig:fieldNoLateral}, it is the outer boundary of the partition zone where the shortest paths have to be done as line segments followed by spirals, i.e. the dark blue region of the figure. This curve is made of two parts~\cite{Salaris:2010}, one arc of circle and one piece of logarithmic spiral. Hence, we propose to perform the following: for all points inside the partition regions in contact with this locus, we evaluate its distance in terms of the primitive to be done to reach this locus and modify the reference velocities as follows. 
+A strategy we propose here is to take advantage of the fact that the set of points where in-site rotations occur is very well defined geometrically in the plane, as a direct consequence of the synthesis from~\citep{Salaris:2010}. As illustrated in Fig.~\ref{fig:fieldNoLateral}, it is the outer boundary of the partition zone where the shortest paths have to be done as line segments followed by spirals, i.e. the dark blue region of the figure. This curve is made of two parts~\citep{Salaris:2010}, one arc of circle and one piece of logarithmic spiral. Hence, we propose to perform the following: for all points inside the partition regions in contact with this locus, we evaluate its distance in terms of the primitive to be done to reach this locus and modify the reference velocities as follows. 
 
 If the robot is far from the locus of in-site rotations, then the path to follow is continuously derivable and goes either forwards or backwards; in that case, we use the ``non-holonomic behavior'' as described in Section~\ref{sec:reftrajectories}, with the robot orientation controlled to stay close to $\theta^*(x_l,y_l)$,
 $$
@@ -260,7 +260,6 @@ In Fig.~\ref{fig:fieldUseLateral}, we illustrate this modification by drawing th
 
 %=============================================================================================================================================================
 \section{Results}
-\label{sec:results}
 
 %=============================================================================================================================================================
 
@@ -271,7 +270,7 @@ In Fig.~\ref{fig:steps6}, we depict the performance in perfect and noiseless con
 \begin{figure}[ht]
 \centering
 \includegraphics[scale=0.8]{Chap5-Visual-Planning/steps6.pdf}
-\caption{Vector fields generated by optimal trajectories planned with visibility constraints for a non-holonomic robot~\cite{Salaris:2010}. To each color is associated a family of global paths that reach the goal (at $(-3,0)$) according to the current configuration of the robot while keeping the landmark (yellow disk) visible at all times. The footsteps, CoM and CoP trajectories for the humanoid robot are all depicted as indicated in the upper box.}
+\caption{Vector fields generated by optimal trajectories planned with visibility constraints for a non-holonomic robot~\citep{Salaris:2010}. To each color is associated a family of global paths that reach the goal (at $(-3,0)$) according to the current configuration of the robot while keeping the landmark (yellow disk) visible at all times. The footsteps, CoM and CoP trajectories for the humanoid robot are all depicted as indicated in the upper box.}
 \label{fig:steps6}
 \end{figure}
 
