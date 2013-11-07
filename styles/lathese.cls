@@ -318,14 +318,14 @@
 	\thispagestyle{empty}
 	\sf  \vspace*{0in}
 	\begin{center}\sc \LARGE\@CIMAT\end{center}\vspace{.2in}
-	\begin{center}\sc \LARGE Tesis\end{center}\vspace{.2in}
+	\begin{center}\sc \LARGE Tesis\end{center}\vspace{.3in}
 	\begin{center}para obtener el grado de\\
 	 \vspace{.2in} {\large Maestr\'ia en Ciencias con Especialidad en Computaci\'on y Matem\'aticas Industriales}\\
 	 \if@final{\vspace{.6in}presentada el \@TheDate}
-	 \else{\vspace{.3in}\LARGE Draft: \@TheDraftDate}\fi
-	 \end{center} \vspace{0.4in}
-	\begin{center}\LARGE\@TheTitle\end{center}\vspace{.6in}
-	\begin{center}\@TheAuthor\end{center}\vspace{.6in}
+	 \else{\vspace{.2in}\LARGE Draft: \@TheDraftDate}\fi
+	 \end{center} \vspace{0.3in}
+	\begin{center}\LARGE\@TheTitle\end{center}\vspace{.5in}
+	\begin{center}\@TheAuthor\end{center}\vspace{.5in}
 	\begin{center} {\large Jurado}\end{center}\vspace{0.1in}
 	\begin{center}\begin{tabular}{lcl}
 	 Dr. H\'ector \sc Becerra & & Sinodal \\
