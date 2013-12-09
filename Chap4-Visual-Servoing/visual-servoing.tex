@@ -1,7 +1,7 @@
 \chapter{Vision-Based Control of Humanoid Walking} 
 \label{Chap:Visual-Servoing}
 
-We have introduced the mathematical foundations behind humanoid walking. In this chapter we will discuss the applicability of controlling the robot trajectory using visual servoing, as depicted in Fig.~\ref{Fig:Schema}. We present a novel approach for using a visual servoing scheme to control the dynamic walk of a humanoid robot. Here, the online information given by an on-board camera is used to drive the robot towards a specific goal, in a visual servoing scheme. This closed loop approach allows the system to react to changes in its environment and to adapt to modeling errors. Our work is built upon the reactive pattern generator of \citep{HerdtAR2010} that we presented at the end of Chapter \ref{Chap:Locomotion-Control}, which modifies footsteps, center of mass and center of pressure trajectories to track a reference velocity. We compare our method to another which does not use Model Predictive Control. This alternative method, proposed by Dune et al. \citep{DuneIROS2010} outputs, in a first stage, a reference velocity directly given by the visual servoing control law and then, in a second stage, this reference velocity is introduced in the pattern generator to produce the appropriate walking motion (hence, our term of ``decoupled''). The coupled approach proposed here uses a Model Predictive Control scheme to introduce the visual error terms directly within the pattern generator. This allows to avoid a number of limitations (e.g. that visual constraints cannot be introduced directly inside the locomotion controller or that the camera motion has to be accounted for separately) that appear in the decoupled method.  In this work, both approaches are compared numerically and validated in simulation.
+We have introduced the mathematical foundations behind humanoid walking. In this chapter we will discuss the applicability of controlling the robot trajectory using visual servoing, as depicted in Fig.~\ref{Fig:Schema}. We present a novel approach for using a visual servoing scheme to control the dynamic walk of a humanoid robot. Here, the online information given by an on-board camera is used to drive the robot towards a specific goal, in a visual servoing scheme. This closed loop approach allows the system to react to changes in its environment and to adapt to modeling errors. Our work is built upon the reactive pattern generator of \citep{HerdtAR2010} that we presented at the end of Chapter \ref{Chap:Locomotion-Control}, which modifies footsteps, center of mass and center of pressure trajectories to track a reference velocity. We compare our method to another which does not use Model Predictive Control in the visual servoing. This alternative method, proposed by Dune et al. \citep{DuneIROS2010} outputs, in a first stage, a reference velocity directly given by the visual servoing control law and then, in a second stage, this reference velocity is introduced in the pattern generator to produce the appropriate walking motion (hence, our term of ``decoupled''). The coupled approach proposed here uses a Model Predictive Control scheme to introduce the visual error terms directly within the pattern generator. This allows to avoid a number of limitations (e.g. that visual constraints cannot be introduced directly inside the locomotion controller or that the camera motion has to be accounted separately) that appear in the decoupled method.  In this work, both approaches are compared numerically and validated in simulation.
 
 \section{ Visual servoing}
 
@@ -11,7 +11,7 @@ $$
 \text{v}^c = -\lambda {L}_e^{+} {e},
 $$
 
-where ${e} = {s}-{s}^{*}$ is the vector of errors between the current features $s$ and the desired ones ${s}^{*}$, $\text{{v}}^c$ is the velocity of the camera (the control variable), and ${L}_e^{+}$ is the Moore-Penrose pseudo-inverse of the interaction matrix ${L}_e$, that is, the matrix relating the velocity of the features and the velocity of the camera.
+\noindent where ${e} = {s}-{s}^{*}$ is the vector of errors between the current features $s$ and the desired ones ${s}^{*}$, $\text{{v}}^c$ is the velocity of the camera (the control variable), and ${L}_e^{+}$ is the Moore-Penrose pseudo-inverse of the interaction matrix ${L}_e$, that is, the matrix relating the velocity of the features and the velocity of the camera.
 
 \begin{figure}[ht] 
 \begin{center}
@@ -35,7 +35,7 @@ As for any pattern generator, the stepping motion induces a sway motion, which c
 \label{eq:sway}
 \end{equation}
 
-where $\overline{\text{{v}}}^c$ is the ``ideal'' camera velocity that would exist without sway, and $\text{{v}}^b$ is the part of the CoM velocity that is induced by the sway. The matrix ${^c  V_{m}}$ is a $6\times6$ twist matrix relating the camera frame (index ``c'') to the CoM frame (index ``m'') through the transform ${^cT_{m}}$.
+\noindent where $\overline{\text{{v}}}^c$ is the ``ideal'' camera velocity that would exist without sway, and $\text{{v}}^b$ is the part of the CoM velocity that is induced by the sway. The matrix ${^c  V_{m}}$ is a $6\times6$ twist matrix relating the camera frame (index ``c'') to the CoM frame (index ``m'') through the transform ${^cT_{m}}$.
 
 We recall how in~\citep{DuneIROS2010}, a classical visual servoing scheme is adapted to be used for a humanoid robot. The idea, basically, is to use the output velocity from Eq.~\ref{eq:avControlCom} as a reference velocity for Eq.~\ref{Eq:MinJerk}. However, as we have pointed it out, the humanoid motion has an intrinsic sway component, that makes the visual features have an evolution in the image not corresponding to the desired trajectory. 
 
@@ -46,7 +46,7 @@ As mentioned above, the features motion in the image can be decomposed into a co
 \dot{ s}={ L_e} \overline{\text{v}}^c+ { L_e} \, ^c  V_{m}{\text{v}^{b}}.
 \end{equation}
 
-Then, the idea is to use a virtual camera that would correspond to the position of the camera if we supposed that there were no sway motion applying to the robot, to control this virtual camera, and use its controlled velocity ($\overline{\text{ v}}^c$) as a reference velocity in the reactive PG.
+Then, the idea is to use a virtual camera that would correspond to the position of the camera if we supposed that there were no sway motion affecting the robot motion, to control this virtual camera, and use its controlled velocity ($\overline{\text{ v}}^c$) as a reference velocity in the reactive PG.
  
 %----------------------FIG-----------------------------------------------%
 %\begin{figure}[ht] 
@@ -67,7 +67,7 @@ Integrating equation \ref{Eq:FeaturesSway} between $0$ and $t$, Dune et al. have
 s(t) = \overline{s}(t) + \int_{0}^{t} {{\widehat{ L_e}}} \, ^c  V_{m} \text{ v}^b dt - E,
 \end{equation}
 
-where $E \stackrel{\mbox{\tiny def}}{=} s(0)-\overline{s}(0)$. From the previous equation, the corrected visual error between a reference features vector and the sway-less features vector, to be used for the computation of the reference velocity, is deduced as
+\noindent where $E \stackrel{\mbox{\tiny def}}{=} s(0)-\overline{s}(0)$. From the previous equation, the corrected visual error between a reference features vector and the sway-less features vector, to be used for the computation of the reference velocity, is deduced as
 
 \begin{align}
 \overline{e}(t)&=\overline{s}(t) -s^*= e(t) -  (\int_{0}^{t}{ {\widehat{ L_e}}} \, ^c  V_m \text{ v}^b dt -E).
@@ -81,7 +81,7 @@ $$
 E= \frac{1}{T^{sway}}\int_{t-T^{sway}}^t\int_0^t { {\widehat{ L_e}}} \, ^c  V_m \text{ v}^b  dt dt,
 $$ 
 
-and finally, it is used in the control law for the CoM (e.g., the reference velocity for Eq.~\ref{Eq:MinJerk}) 
+\noindent and finally, it is used in the control law for the CoM (e.g., the reference velocity for Eq.~\ref{Eq:MinJerk}) 
 
 \begin{gather} 
 \overline{\text{ v}}^m= -\lambda{ ^c  V_m {{ {\widehat{ L_e}}}}^{+}}(e -  (\int_{0}^{t}{{ {\widehat{ L_e}}}} \, ^c  V_{m}\text{ v}^b dt - E)).
@@ -95,7 +95,7 @@ This reference velocity can be directly injected in the Velocity Controlled Patt
 \section{Visual servoing and MPC}
 \label{sec:vsmauricio}
 
-As we know, in walking pattern generation, MPC is used to estimate a sequence of optimal controls at some horizon, because of the step-based nature of walking. Hence, we want to orient the optimization of the foot placement by taking into account the expected evolution of the visual servoing (VS) errors so that, instead of minimizing the VS errors at current time $k$, one would like to foresee its evolution at some horizon $[k+1,k+N]$. In this chapter, in order to simplify the notation, we will use the form $s_k$ to express the the time reference $k$ of $s(k)$ and alike.
+As we know, in walking pattern generation, MPC is used to estimate a sequence of optimal controls at some horizon, because of the step-based nature of walking. Hence, we want to orient the optimization of the foot placement by taking into account the expected evolution of the visual servoing (VS) errors so that, instead of minimizing the VS errors at current time $k$, one would like to foresee its evolution at some horizon $[k+1,k+N]$. In this chapter, in order to simplify the notation, we will use the form $s_k$ to express the time reference $k$ of $s(k)$ and alike.
 
 In~\citep{Allibert2010}, such a time horizon-aware scheme has been proposed. The visual predictive control (VPC) is introduced as:
 
@@ -126,7 +126,7 @@ Here, $s^m_j$ is the collection of all the predicted features at time $j$, that 
  \min_{U_{k}} \; \sum\limits_{l=0}^{M}  [S^d_{l} - S^m_{l,k}]^{\transpose} W [S^d_{l} - S^m_{l,k}],
 \end{equation}
 
-with $S^m_{l,k} =  \left(
+\noindent with $S^m_{l,k} =  \left(
   s^m_{l,k+1},
   s^m_{l,k+2},
  \dots,
@@ -168,7 +168,7 @@ As we said, Eq. \ref{Eq:ConstraintProjection} implements the pinhole camera mode
  \end{array}
 \end{equation}
 
-where $T^{wm}_j$ is the transformation from the world frame to the CoM frame and $T^{mc}$ is the transformation from the CoM frame to the camera frame, which is not variable in our approach. Note that
+\noindent where $T^{wm}_j$ is the transformation from the world frame to the CoM frame and $T^{mc}$ is the transformation from the CoM frame to the camera frame, which is not variable in our approach. Note that
 
 $$
 T^{wm}_j = (T^{mw}_j)^{-1} = 
@@ -180,7 +180,7 @@ T^{wm}_j = (T^{mw}_j)^{-1} =
 \right)
 $$ 
 
-where $t^{mw}_j$ is the position of the CoM in the world frame at time $j$, which depends in our control variables through Eq. \ref{Eq:PosCMHorizon}.
+\noindent where $t^{mw}_j$ is the position of the CoM in the world frame at time $j$, which depends in our control variables through Eq. \ref{Eq:PosCMHorizon}.
 $R^{mw}_j$ is the direction of the robot waist according to the world reference frame at time $j$. In our current formulation 
 there is no free variables modifying this quantity, because it would make the problem non-linear. More details
 about this problem are given in Section~\ref{subsection:control_of_the_rotation_angle}.
@@ -229,7 +229,7 @@ $$
 \right.
 $$
 
-with $dx=x-x_0$, $dy=y-y_0$ and $dz=z-z_0$. 
+\noindent with $dx=x-x_0$, $dy=y-y_0$ and $dz=z-z_0$. 
 
 We propose to apply such a linearization of Eq.~\ref{Eq:Projection} for the whole horizon, around the first position $(j=k)$ of landmark $l'$, i.e. at the linearization point $(x^{c}_{l',k},y^{c}_{l',k},z^{c}_{l',k})$, that is, the point we are actually watching, in the CoM frame. 
 
@@ -251,7 +251,7 @@ This way, we can express the predicted position of the landmark $l'$ linearly at
  \right),
 \end{equation*}
 
-where $u_{l',k} = x^{c}_{l',k} / z^{c}_{l',k}$ and $v_{l',k} = y^{c}_{l',k} / z^{c}_{l',k}$ are the initial image positions of the landmarks in the horizon and the coefficients $\pi^{ij}_{l',k}$ the elements of the matrix
+\noindent where $u_{l',k} = x^{c}_{l',k} / z^{c}_{l',k}$ and $v_{l',k} = y^{c}_{l',k} / z^{c}_{l',k}$ are the initial image positions of the landmarks in the horizon and the coefficients $\pi^{ij}_{l',k}$ the elements of the matrix
 
 \begin{equation*}
 \Pi_{l',k} = \left(
@@ -262,9 +262,9 @@ where $u_{l',k} = x^{c}_{l',k} / z^{c}_{l',k}$ and $v_{l',k} = y^{c}_{l',k} / z^
 \right),
 \end{equation*}
 
-which is the classical definition of the interaction matrix in Image-Based Visual Servoing.
+\noindent which is the classical definition of the interaction matrix in Image-Based Visual Servoing.
 
-Finally, we can express the projection of the $l'-th$ landmark (constraint \ref{Eq:ConstraintProjection}) as :
+Finally, we can express the projection of the $l'-th$ landmark (constraint \ref{Eq:ConstraintProjection}) as:
 
 \begin{equation}
 \label{Eq:Features}
@@ -286,7 +286,7 @@ Finally, we can express the projection of the $l'-th$ landmark (constraint \ref{
  \end{array}\right),
 \end{equation}
 
-so that we can now introduce the visual features in the pattern generator. Expanding terms in Eq.~\ref{Eq:Features} for the first row and setting $\Pi^u_{l',k}$ as the first row of matrix $\Pi_{l',k}$,
+\noindent so that we can now introduce the visual features in the pattern generator. Expanding terms in Eq.~\ref{Eq:Features} for the first row and setting $\Pi^u_{l',k}$ as the first row of matrix $\Pi_{l',k}$,
 
 \begin{eqnarray}
 \label{Eq:FeatExpanded}
@@ -302,7 +302,7 @@ and $x_j,y_j,z_j$ the position of the CoM at time $j$ (see Chapter~\ref{Chap:Loc
  u_{l',j} = a^u_{l',k} x_j + b^u_{l',k} y_j + c^u_{l',k},
 \end{equation}
 
-with 
+\noindent with 
 $$
 \left\{
 \begin{array}{ccl}
@@ -325,7 +325,7 @@ Stacking the features $u_{l',j}$ and the CoM positions for the whole horizon and
 S^m_{l',k} = A^u_{l',k} C_x(k+1) + B^u_{l',k} C_y(k+1) + C_{l',k}^u,
 \end{equation*}
 
-with 
+\noindent with 
 $$
 \begin{array}{ccl}
 A^u_{l',k} &=& a^u_{l',k} I_{N\times N}\\
@@ -334,7 +334,7 @@ C_{l',k}^u &=& c^u_{l',k} (1,1,...,1)^{\transpose}
 \end{array}
 $$
 
- which corresponds to the predicted coordinates $u$ of the landmark $l'$-th in the horizon.
+ \noindent which corresponds to the predicted coordinates $u$ of the landmark $l'$-th in the horizon.
 The equivalent equations for the $v$ coordinates of the same landmark are straightforward.
 
 Every projected landmark provides two coordinates $(u,v)$ and we treat each one as an individual feature. This means that the $l$-th feature is the $u$ coordinate in the image of the landmark $l' = \left \lfloor l/2 \right \rfloor$ for $l$ even, and the $v$ coordinate for $l$ odd.
@@ -345,7 +345,7 @@ Generalizing to all features, we have:
  S^m_{l,k} = A_{l,k} C_x(k+1) + B_{l,k} C_y(k+1) + C_{l,k},
 \end{equation}
 
-with $A_{l,k} = A^u_{l',k}$ for $l$ even and $A_{l,k} = A^v_{l',k}$ for $l$ odd. The same holds for $B_{l,k}$ and $C_{l,k}$.
+\noindent with $A_{l,k} = A^u_{l',k}$ for $l$ even and $A_{l,k} = A^v_{l',k}$ for $l$ odd. The same holds for $B_{l,k}$ and $C_{l,k}$.
 
 Finally, we can introduce visual servoing in the walking generation with the QP:
 
@@ -439,13 +439,13 @@ The same decoupled solution is used in this approach. Hence, in a first stage, w
 \end{eqnarray}
 }
 
-where, with the same notations as for $\dddot{C}_x(k)$ and $\dddot{C}_y(k)$, $\dddot{C}_{\theta}(k)$ is the sequence of $N$ jerk values to be applied, and $C_{\theta}(k+1)$ is the sequence of predicted $\theta$ values, i.e. the orientations of the trunk,  
+\noindent with the same notations as for $\dddot{C}_x(k)$ and $\dddot{C}_y(k)$, $\dddot{C}_{\theta}(k)$ is the sequence of $N$ jerk values to be applied, and $C_{\theta}(k+1)$ is the sequence of predicted $\theta$ values, i.e. the orientations of the trunk,  
 
 $$
 C_{\theta}(k+1) \stackrel{\mbox{\tiny def}}{=} (c_{\theta}(k+1),...,c_{\theta}(k+N))^{\transpose},
 $$
 
-and similarly for $F_{\theta}(k+1)$, the feet orientations. Finally, as a reference orientation $\Theta^{0}$ is defined once for all at the starting configuration as a target feet orientation. Several conventions exist, in this paper, the trunk orientation $C_{\theta}(k)$ is trying to follow the flying foot orientation $F_{\theta}(k)$. The flying foot is the only one which can move during the single support phase. Certainly, the support foot is fixed, and both feet are fixed during the double support phase. Finally, zero speed, and zero acceleration are specified at the beginning and the end of the trajectories.
+\noindent and similarly for $F_{\theta}(k+1)$, the feet orientations. Finally, as a reference orientation $\Theta^{0}$ is defined once for all at the starting configuration as a target feet orientation. Several conventions exist, in this paper, the trunk orientation $C_{\theta}(k)$ is trying to follow the flying foot orientation $F_{\theta}(k)$. The flying foot is the only one which can move during the single support phase. Certainly, the support foot is fixed, and both feet are fixed during the double support phase. Finally, zero speed, and zero acceleration are specified at the beginning and the end of the trajectories.
 
 Then in a second stage, we introduce these angles as constant in the main QP (Eq.~\ref{Eq:MinJerk}). This approach gives us the advantage of introducing the following constraints,
 
@@ -480,7 +480,7 @@ Furthermore a convex polytope can be expressed under a linear form. It means tha
 \text{and then,} ~  A'' U_k &\leq&  b'',
 \end{eqnarray}
 
-where matrix $ A'$ and vector $ b'$ are related with the image constraints. For example, bound constraints in the $(u,v)$ coordinates like visibility constraints are easily expressed in terms of Eq.~\ref{Eq:VSConstraintsOptimVar} and are introduced directly in the QP.
+\noindent where matrix $ A'$ and vector $ b'$ are related with the image constraints. For example, bound constraints in the $(u,v)$ coordinates like visibility constraints are easily expressed in terms of Eq.~\ref{Eq:VSConstraintsOptimVar} and are introduced directly in the QP.
 
 
 \subsection{Qualitative comparison with the classical approach}
@@ -491,7 +491,7 @@ A first advantage of introducing the visual errors term in the Pattern Generator
 
 Moreover, since the velocity reference we set as an input to the pattern generator is not truly performed (due to physical constraints of the robot), we have to re-inject this difference in the next iteration. In the coupled approach those problems are handled intrinsically within the Model Predictive Control. The sway motion is naturally filtered since we minimize the errors within a full cycle (the horizon in the Model Predictive Control). Finally, in the MPC-based coupled approach, we minimize errors as long as the stability criteria permits it, so we always request (and apply) feasible controls and the error is instantaneously taken into account.
 
-Finally, we know classical visual servoing control laws have very good performance in robotic arms. However, stepping is a highly dynamic process. We can not ignore the stability and limitations in the design of our control laws. For instance, in classical visual servoing, while reaching the goal, the velocity controls requested to the robot are getting smaller, and theoretically to the infinity, due to the exponential decay. Clearly we stop the motion when some convergence criteria is reached. This is not a problem with robotic arms since we just send rotational velocities to the motors, so this velocity can very small. On the other side, the motion can take long time, and the robotic arm will not harm. Stepping involves balance, and every step could break it. We must avoid unnecessary motion and reach the goal as soon and efficient as possible.
+Finally, we know classical visual servoing control laws have very good performance in robotic arms. However, stepping is a highly dynamic process. We can not ignore the stability and limitations in the design of our control laws. For instance, in classical visual servoing, while reaching the goal, the velocity controls requested to the robot are getting smaller, and null velocities are theoretically reached at infinite time, due to the exponential decay. Clearly we stop the motion when some convergence criteria is reached. This is not a problem with robotic arms since we just send rotational velocities to the motors, so this velocity can be very small. On the other side, the motion can take long time, and the stability of the robot arm system is not jeopardized. Stepping involves balance, and every step could break it. We must avoid unnecessary motion and reach the goal as soon and efficient as possible.
 
 
 \section{Simulation results}
@@ -623,12 +623,12 @@ Due to the walking nature, we have oscillations in the features trajectories. On
  \centering
  \subfigure{\includegraphics[scale=.3]{Chap4-Visual-Servoing/velocities_both}}
  \subfigure{\includegraphics[scale=.3]{Chap4-Visual-Servoing/errors_both}}
- \caption{\label{Fig:Comparisons-velocitieserrors} Left, comparison of velocity profiles in the $x$ (blue) and $y$ (red) axes, for the decoupled (dashed line) and coupled (solid line) approaches. Right, comparison of the features errors evolution.}
+ \caption{\label{Fig:Comparisons-velocitieserrors} Left, comparison of velocity profiles in the $x$ (blue) and $y$ (red) axis, for the decoupled (dashed line) and coupled (solid line) approaches. Right, comparison of the features errors evolution.}
  \end{figure*}
 
 We conducted a simple experiment to illustrate better the differences between the two approaches of Section~\ref{sec:vsclaire} and Section~\ref{sec:vsmauricio}, and to have quantitative comparisons between them. In this experiment, the robot has simply to go three meters forward. In Fig.~\ref{Fig:Comparisons-approaches}, we depict the robot trajectories and footsteps (left column) and the features trajectories (right column) for each approach (the coupled one in the upper line, the decoupled one in the lower line). We can clearly appreciate that the coupled approach converges faster. Indeed, with the coupled approach, it took 15 steps (including double supports) to reach the goal. However, with the decoupled approach, after 30 steps, the goal  has still not been reached and keeps converging slowly. Here, the convergence criterion is the norm of the errors between the current features positions and the desired ones. Moreover, one can observe that, close to the goal, the features positions follow a smoother trajectory in the case of the visual predictive control than with the decoupled approach, where oscillations (as a result of the immediate stepping) are visible.
 
-In Fig.~\ref{Fig:Comparisons-velocitieserrors} left, we present the profiles of velocities performed by the robot, in both cases. It is interesting to note that in the coupled approach, the amplitude of the oscillations is smaller, which is desirable. Also, when the error gets small, the classical approach slows down to have a slow convergence rate. This is a normal feature of classical visual servoing, i.e. the error evolves with an exponential decay. In the decoupled approach, this behavior is clearly present. However, in the coupled approach combining the MPC walking pattern generator with visual predictive control, this is not true anymore, see Fig.~\ref{Fig:Comparisons-velocitieserrors} right, in particular, because we take into account future information, so we converge faster. In the errors evolution, we use the same symmetry argument as in Fig.~\ref{Fig:Results6}. We should note that the $u$ components in the image plane are theoretically the oscillatory ones (from the stepping motion). In Fig.~\ref{Fig:Comparisons-velocitieserrors}, we can see that the $v$ component converges faster in the coupled approach. With the $u$ components, there remains a small residual of the oscillation in both the coupled and decoupled approaches, which explains that the $u$ components converge slower in the coupled approach.
+In Fig.~\ref{Fig:Comparisons-velocitieserrors} left, we present the profiles of velocities performed by the robot, in both cases. It is interesting to note that in the coupled approach, the amplitude of the oscillations is smaller, which is desirable. Also, when the error gets small, the classical approach slows down to have a slow convergence rate. This is a normal feature of classical visual servoing, i.e. the error evolves with an exponential decay. In the decoupled approach, this behavior is clearly present. However, in the coupled approach combining the MPC walking pattern generator with visual predictive control, this is not true anymore, see Fig.~\ref{Fig:Comparisons-velocitieserrors} right, in particular, because we take into account future information, so the coupled system converge faster. In the errors evolution, we use the same symmetry argument as in Fig.~\ref{Fig:Results6}. We should note that the $u$ components in the image plane are theoretically the oscillatory ones (from the stepping motion). In Fig.~\ref{Fig:Comparisons-velocitieserrors}, we can see that the $v$ component converges faster in the coupled approach. With the $u$ components, there remains a small residual of the oscillation in both the coupled and decoupled approaches, which explains that the $u$ components converge slower in the coupled approach.
 
 
 \section{Conclusion}
