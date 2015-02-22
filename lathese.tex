@@ -20,7 +20,7 @@
 
 \TheTitle{Vision-Based Locomotion for Humanoid Robots}
 \TheAuthor{Mauricio Josafat Garc\'ia V\'azquez}
-\TheDate{someday}
+\TheDate{23 de Noviembre de 2013}
 \TheAdvisor{Jean-Bernard Hayet}
 \TheGroup{}
 
@@ -69,20 +69,29 @@
 \newcommand\transpose{\top}
 \usepackage{multirow}
 \usepackage[]{geometry}
+\usepackage{pdfpages}
+\usepackage{afterpage}
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
 
 \begin{document}
  
 \newgeometry{top=35mm,bottom=30mm,right=25mm,left=25mm}
-\maketitlepage
+\includepdf[pages={1}]{portada.pdf}
+%\maketitlepage
 \restoregeometry
 
-\input{abstract.tex}
+\afterpage{\blankpage}
 
-\begin{dedication}
-{ {\it a Totoro} }
-\end{dedication}
+%\input{abstract.tex}
 
 \input{acknowledgements.tex}
+
+\afterpage{\blankpage}
 
 \frontmatter
 
