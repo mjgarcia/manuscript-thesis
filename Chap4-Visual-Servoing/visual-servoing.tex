@@ -137,11 +137,11 @@ Allibert et al. solved directly the non-linear programming problem Eqs.~\ref{Eq:
 
 \section{Integrating the visual servoing to the walking motion generator}
 \label{sec:integration}
-In the following we use superscripts $w,c,m$ to refer the world, the camera, and the CoM reference frame, and $T^{cm}$ means transformation from $c$ to $m$ frame. If we introduce directly Eq. \ref{Eq:MinVisualFeatures2} in Eq. \ref{Eq:MinJerk}, we will not have a QP anymore due to the non-linear constraints, namely Eqs. \ref{Eq:ConstraintDynamicModel} and \ref{Eq:ConstraintProjection}. We can directly solve the first problem (Eq. \ref{Eq:ConstraintDynamicModel}) by using the dynamic model in Eq. \ref{Eq:PosCMHorizon}. In this case there is no rotation, but we will see that we can introduce it in a decoupled way without losing the QP formulation.
+In the following we use superscripts $w,c,m$ to refer the world, the camera, and the CoM reference frame, and ${^cT_{m}}$ means transformation from $c$ to $m$ frame. If we introduce directly Eq. \ref{Eq:MinVisualFeatures2} in Eq. \ref{Eq:MinJerk}, we will not have a QP anymore due to the non-linear constraints, namely Eqs. \ref{Eq:ConstraintDynamicModel} and \ref{Eq:ConstraintProjection}. We can directly solve the first problem (Eq. \ref{Eq:ConstraintDynamicModel}) by using the dynamic model in Eq. \ref{Eq:PosCMHorizon}. In this case there is no rotation, but we will see that we can introduce it in a decoupled way without losing the QP formulation.
 
 \subsection{Linearization of the observation model}
 
-As we said, Eq. \ref{Eq:ConstraintProjection} implements the pinhole camera model. Let $p^{w}_{l'} = [x^{w}_{l'},y^{w}_{l'},z^{w}_{l'}]^{\transpose}$ be the position of the {l'}-th landmark in the world reference frame. At time $j$, one can compute the projection to the image plane by first transforming the landmark position to the camera frame with the homogeneous transform $T^{mc} T^{wm}_j$ and then applying the projection,
+As we said, Eq. \ref{Eq:ConstraintProjection} implements the pinhole camera model. Let $^{w}p_{l'} = [^{w}x_{l'},^{w}y_{l'},^{w}z_{l'}]^{\transpose}$ be the position of the {l'}-th landmark in the world reference frame. At time $j$, one can compute the projection to the image plane by first transforming the landmark position to the camera frame with the homogeneous transform $^mT_c {^wT_{m,j}}$ and then applying the projection,
 
 \begin{equation}
 \label{Eq:Projection}
@@ -155,33 +155,33 @@ As we said, Eq. \ref{Eq:ConstraintProjection} implements the pinhole camera mode
   =
  \left(
  \begin{matrix}
-  u(x^{c}_{l',j},y^{c}_{l',j},z^{c}_{l',j}) \\
-  v(x^{c}_{l',j},y^{c}_{l',j},z^{c}_{l',j})
+  u({^cx_{l',j}},{^cy_{l',j}},{^cz_{l',j}}) \\
+  v({^cx_{l',j}},{^cy_{l',j}},{^cz_{l',j}})
  \end{matrix}
  \right)
  =  \left(
  \begin{matrix}
-  x^{c}_{l',j} / z^{c}_{l',j}\\
-  y^{c}_{l',j} / z^{c}_{l',j}
+  {^cx_{l',j}} / {^cz_{l',j}}\\
+  {^cy_{l',j}} / {^cz_{l',j}}
  \end{matrix}
  \right),
  \end{array}
 \end{equation}
 
-\noindent where $T^{wm}_j$ is the transformation from the world frame to the CoM frame and $T^{mc}$ is the transformation from the CoM frame to the camera frame, which is not variable in our approach. Note that
+\noindent where $^wT_{m,j}$ is the transformation from the world frame to the CoM frame at time $j$ and $^mT_c$ is the transformation from the CoM frame to the camera frame, which is not variable in our approach. Note that
 
 $$
-T^{wm}_j = (T^{mw}_j)^{-1} = 
+^wT_{m,j} = (^mT_{w,j})^{-1} = 
 \left(
 \begin{matrix}
-(R^{mw}_j)^{-1} & -(R^{mw}_j)^{-1}t^{mw}_j \\
+(^mR_{w,j})^{-1} & -(^mR_{w,j})^{-1} {^mt_{w,j}}\\
 0_{1 \times 3} & 1
 \end{matrix}
 \right)
 $$ 
 
-\noindent where $t^{mw}_j$ is the position of the CoM in the world frame at time $j$, which depends in our control variables through Eq. \ref{Eq:PosCMHorizon}.
-$R^{mw}_j$ is the direction of the robot waist according to the world reference frame at time $j$. In our current formulation 
+\noindent where $^mt_{w,j}$ is the position of the CoM in the world frame at time $j$, which depends in our control variables through Eq. \ref{Eq:PosCMHorizon}.
+$^mR_{w,j}$ is the direction of the robot waist according to the world reference frame at time $j$. In our current formulation 
 there is no free variables modifying this quantity, because it would make the problem non-linear. More details
 about this problem are given in Section~\ref{subsection:control_of_the_rotation_angle}.
 
@@ -231,7 +231,7 @@ $$
 
 \noindent with $dx=x-x_0$, $dy=y-y_0$ and $dz=z-z_0$. 
 
-We propose to apply such a linearization of Eq.~\ref{Eq:Projection} for the whole horizon, around the first position $(j=k)$ of landmark $l'$, i.e. at the linearization point $(x^{c}_{l',k},y^{c}_{l',k},z^{c}_{l',k})$, that is, the point we are actually watching, in the CoM frame. 
+We propose to apply such a linearization of Eq.~\ref{Eq:Projection} for the whole horizon, around the first position $(j=k)$ of landmark $l'$, i.e. at the linearization point $(^{c}x_{l',k},^{c}y_{l',k},^{c}z_{l',k})$, that is, the point we are actually watching in the CoM frame. 
 
 This way, we can express the predicted position of the landmark $l'$ linearly at time $j>k$ in the horizon:
 
@@ -245,19 +245,19 @@ This way, we can express the predicted position of the landmark $l'$ linearly at
  \right)
  = \left(
  \begin{matrix}
-  \pi^{11}_{l',k} x^{c}_{l',j} + \pi^{13}_{l',k} z^{c}_{l',j}+ u_{l',k}\\
-  \pi^{22}_{l',k} y^{c}_{l',j} + \pi^{23}_{l',k} z^{c}_{l',j} + v_{l',k}
+  \pi^{11}_{l',k} \ ^{c}x_{l',j} + \pi^{13}_{l',k} \ ^{c}z_{l',j}+ u_{l',k}\\
+  \pi^{22}_{l',k} \ ^{c}y_{l',j} + \pi^{23}_{l',k} \ ^{c}z_{l',j} + v_{l',k}
  \end{matrix}
  \right),
 \end{equation*}
 
-\noindent where $u_{l',k} = x^{c}_{l',k} / z^{c}_{l',k}$ and $v_{l',k} = y^{c}_{l',k} / z^{c}_{l',k}$ are the initial image positions of the landmarks in the horizon and the coefficients $\pi^{ij}_{l',k}$ the elements of the matrix
+\noindent where $u_{l',k} = {^cx_{l',k}} / {^cz_{l',k}}$ and $v_{l',k} = {^cy_{l',k}} / {^cz_{l',k}}$ are the initial image positions of the landmarks in the horizon and the coefficients $\pi^{ij}_{l',k}$ the elements of the matrix
 
 \begin{equation*}
 \Pi_{l',k} = \left(
 \begin{matrix}
- 1/z^{c}_{l',k} & 0 & - u_{l',k} / z^{c}_{l',k} \\
- 0 & 1/z^{c}_{l',k} & - v_{l',k} / z^{c}_{l',k}
+ 1/^{c}z_{l',k} & 0 & - u_{l',k} / ^{c}z_{l',k} \\
+ 0 & 1/^{c}z_{l',k} & - v_{l',k} / ^{c}z_{l',k}
 \end{matrix}
 \right),
 \end{equation*}
@@ -280,8 +280,8 @@ Finally, we can express the projection of the $l'-th$ landmark (constraint \ref{
 & v_{l',k} \\
 \end{array}
 \right]
- T^{mc} T^{wm}_j \left( \begin{array}{c}
- p^{w}_{l'}\\
+ \ ^mT_c \ ^wT_{m,j} \left( \begin{array}{c}
+ ^{w}p_{l'}\\
  1
  \end{array}\right),
 \end{equation}
@@ -290,11 +290,11 @@ Finally, we can express the projection of the $l'-th$ landmark (constraint \ref{
 
 \begin{eqnarray}
 \label{Eq:FeatExpanded}
- u_{l',j} &= &\Pi^u_{l',k} (R^{wc} p^{w}_{l'} + R^{wc} t^{mw}_j + t^{mc}) + u_{l',k}.
+ u_{l',j} &= &\Pi^u_{l',k} (^wR_c {^wp_{l'}} + {^wR_c} {^mt_{w,j}} + {^mt_c}) + u_{l',k}.
 \end{eqnarray}
 
-Since $R^{wc} t^{mw}_j = R^{wc}_1 x_j + R^{wc}_2 y_j + R^{wc}_3 z_j$, where $R^{wc}_i$ is the $i$-th column of $R^{wc}$
-\footnote{To simplify the notations $R^{wc}=R^{mc}R_j^{wm}$}
+Since $^wR_c {^mt_{w,j}} = {^wR_{c1}} x_j + {^wR_{c2}} y_j + {^wR_{c3}} z_j$, where $^wR_{ci}$ is the $i$-th column of $^wR_c$
+\footnote{To simplify the notations ${^wR_c}={^mR_c}{^wR_{m,j}}$}
 and $x_j,y_j,z_j$ the position of the CoM at time $j$ (see Chapter~\ref{Chap:Locomotion-Control}). We can rewrite Eq.~\ref{Eq:FeatExpanded}
 
 \begin{equation}
@@ -306,9 +306,9 @@ and $x_j,y_j,z_j$ the position of the CoM at time $j$ (see Chapter~\ref{Chap:Loc
 $$
 \left\{
 \begin{array}{ccl}
-a^u_{l',k} & = & \Pi^u_{l',k} R^{wc}_1\\
-b^u_{l',k} & = & \Pi^u_{l',k} R^{wc}_2\\
-c^u_{l',k} & = & \Pi^u_{l',k} (R^{wc} p^{w}_{l'} + t^{mc} + R^{wc}_3 z_j) + u_{l',k}.
+a^u_{l',k} & = & \Pi^u_{l',k} {^wR_{c1}}\\
+b^u_{l',k} & = & \Pi^u_{l',k} {^wR_{c2}}\\
+c^u_{l',k} & = & \Pi^u_{l',k} ({^wR_c} {^wp_{l'}} + {^mt_c} + {^wR_{c3}} z_j) + u_{l',k}.
 \end{array}
 \right.
 $$
@@ -428,7 +428,7 @@ One must note in Eq.~\ref{Eq:MainQP}, unlike the velocity controlled PG, this QP
 
 So far, we have proposed a scheme to control the trajectory of the center of mass in the $xy$ plane. However, introducing the rotation angle in the minimization problem is not straightforward without losing linearity. Furthermore, the rotation angle plays a very important role here since sometimes most of the error between the desired features $s^d$ and the predicted features $s^m$ may be due to the angle between the robot and the features.
 
-An extension of the original linear MPC scheme with automatic footstep placement that deals with a reference angular velocity has been proposed in~\citep{HerdtIROS2010}. The approach is a decoupled solution, that is, it estimates first the optimal rotation angles and afterwards introduces these values as known in the main QP (as the matrix ${R^{mw}_{j}}$). This scheme should not affect the stability of the walking since inertial effects are not taken into account.
+An extension of the original linear MPC scheme with automatic footstep placement that deals with a reference angular velocity has been proposed in~\citep{HerdtIROS2010}. The approach is a decoupled solution, that is, it estimates first the optimal rotation angles and afterwards introduces these values as known in the main QP (as the matrix ${^mR_{w,j}}$). This scheme should not affect the stability of the walking since inertial effects are not taken into account.
 
 The same decoupled solution is used in this approach. Hence, in a first stage, we optimize the orientations in the MPC time window by  
 
@@ -465,7 +465,7 @@ Eq.~\ref{Eq:RotConstFT} constraint the maximum rotation between feet and trunk, 
 
 The introduction of visual constraints can be done by using Eq.~\ref{Eq:FeaturesUReduced} and Eq.~\ref{Eq:FeaturesVReduced}. Any linear constraint in the image plane $(u,v)$, can be expressed as a linear constraint in the variables $U(k)$.
 
-Furthermore a convex polytope can be expressed under a linear form. It means that we can have time- and landmark-varying constraints. Commonly we only want all landmarks to follow trajectories inside of some convex polytope. Hence, constraints become constant in time and for all landmarks. This can be written as:
+Furthermore a convex polytope can be expressed under a linear form. It means that we can have time and landmark varying constraints. Commonly we only want all landmarks to follow trajectories inside of some convex polytope. Hence, constraints become constant in time and for all landmarks. This can be written as:
 
 \begin{eqnarray}
   A'
@@ -491,7 +491,7 @@ A first advantage of introducing the visual errors term in the Pattern Generator
 
 Moreover, since the velocity reference we set as an input to the pattern generator is not truly performed (due to physical constraints of the robot), we have to re-inject this difference in the next iteration. In the coupled approach those problems are handled intrinsically within the Model Predictive Control. The sway motion is naturally filtered since we minimize the errors within a full cycle (the horizon in the Model Predictive Control). Finally, in the MPC-based coupled approach, we minimize errors as long as the stability criteria permits it, so we always request (and apply) feasible controls and the error is instantaneously taken into account.
 
-Finally, we know classical visual servoing control laws have very good performance in robotic arms. However, stepping is a highly dynamic process. We can not ignore the stability and limitations in the design of our control laws. For instance, in classical visual servoing, while reaching the goal, the velocity controls requested to the robot are getting smaller, and null velocities are theoretically reached at infinite time, due to the exponential decay. Clearly we stop the motion when some convergence criteria is reached. This is not a problem with robotic arms since we just send rotational velocities to the motors, so this velocity can be very small. On the other side, the motion can take long time, and the stability of the robot arm system is not jeopardized. Stepping involves balance, and every step could break it. We must avoid unnecessary motion and reach the goal as soon and efficient as possible.
+We know classical visual servoing control laws have very good performance in robotic arms. However, stepping is a highly dynamic process. We can not ignore the stability and limitations in the design of our control laws. For instance, in classical visual servoing, while reaching the goal, the velocity controls requested to the robot are getting smaller, and null velocities are theoretically reached at infinite time, due to the exponential decay. Clearly we stop the motion when some convergence criteria is reached. This is not a problem with robotic arms since we just send rotational velocities to the motors, so this velocity can be very small. On the other side, the motion can take long time, and the stability of the robot arm system is not jeopardized. Stepping involves balance, and every step could break it. We must avoid unnecessary motion and reach the goal as soon and efficient as possible.
 
 
 \section{Simulation results}
@@ -616,7 +616,7 @@ Due to the walking nature, we have oscillations in the features trajectories. On
  \subfigure{\includegraphics[scale=.18]{Chap4-Visual-Servoing/features_mpc}} \\
  \subfigure{\includegraphics[scale=.18]{Chap4-Visual-Servoing/footsteps_classical-vs}} ~
  \subfigure{\includegraphics[scale=.18]{Chap4-Visual-Servoing/features_classical-vs}}
- \caption{\label{Fig:Comparisons-approaches} Comparison between the coupled (upper part) and decoupled approaches (lower part). On the left side, we depict the robot trajectory with the footsteps (red and blue), and the CoM (black) and CoP (pink) trajectories. On the right side, we depict the evolution of the instantaneous features positions during the experiment (from the red rectangle, at the beginning of the simulation, to the blue one, at the end).}
+ \caption{\label{Fig:Comparisons-approaches} Comparison between the coupled (up) and decoupled approaches (bottom). On the left side, we depict the robot trajectory with the footsteps (red and blue), and the CoM (black) and CoP (pink) trajectories. On the right side, we depict the evolution of the instantaneous features positions during the experiment (from the red rectangle, at the beginning of the simulation, to the blue one, at the end).}
  \end{figure*}
 
 \begin{figure*}[ht]
@@ -633,4 +633,4 @@ In Fig.~\ref{Fig:Comparisons-velocitieserrors} left, we present the profiles of 
 
 \section{Conclusion}
 \label{sec:conclusions}
-Since the original proposal for walking generation proposed in~\citep{Kajita2003}, most of the efforts in the literature have focused in dynamical balance and stability. In this chapter, we have proposed a novel approach to close the control loop by introducing visual information into the walking pattern generation. Our online pattern generator integrates the regulation of the relative pose of image features while simultaneous ensuring safety and stability. In order to keep the optimization formulation as a QP, the perspective projection equations have been linearized around the features positions at the beginning of each cycle. However, our current approach uses 3D information that strongly depends on the localization. As an ongoing work, we wish to drop the need of 3-D information by predicting the image positions of the landmarks in terms on the velocity of the robot in the horizon (IBVS); we also plan to perform real experiments on the HRP-2 humanoid platform.
+Since the original proposal for walking generation proposed in~\citep{Kajita2003}, most of the efforts in the literature have focused in dynamical balance and stability. In this chapter, we have proposed a novel approach to close the control loop by introducing visual information into the walking pattern generation. Our online pattern generator integrates the regulation of the relative pose of image features while simultaneous ensuring safety and stability. In order to keep the optimization formulation as a QP, the perspective projection equations have been linearized around the features positions at the beginning of each cycle. However, our current approach uses 3D information that strongly depends on the localization. As an ongoing work, we wish to drop the need of 3D information by predicting the image positions of the landmarks in terms on the velocity of the robot in the horizon (IBVS); we also plan to perform real experiments on the HRP-2 humanoid platform.
