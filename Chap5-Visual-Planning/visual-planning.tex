@@ -23,7 +23,7 @@ $$
 p^s = (x_p^s,y_p^s,\theta_p^s)^T \; ; \; q^s = (x_q^s,y_q^s,\theta_q^s)^T,
 $$
 
-with $p^s$ the initial configuration and $q^s$ the final one. The complete computed path is executed by reaching the successive sub-goals $q^s$.
+\noindent with $p^s$ the initial configuration and $q^s$ the final one. The complete computed path is executed by reaching the successive sub-goals $q^s$.
 
 
 %==================================================================
@@ -46,7 +46,7 @@ $$
 \end{array}
 $$
 
-where $\theta^*(x,y)$ is the orientation the robot (viewed as a nonholonomic cart)  should have in order to start walking along the shortest path to $q^s$, from its current position $(x,y)$. The pair $(v^*(x,y),\omega^*(x,y))$ are the instantaneous (reference) velocities needed to be applied to follow the shortest paths. Without loss of generality, we can suppose that $v^*(x,y)=0$ (for in-site rotations) or $v^*(x,y)=\pm 1$ (elsewhere). Given the linear velocity $v^*(x,y)$, $\omega^*(x,y)$ is defined in function of the nature  of the path segment,
+\noindent where $\theta^*(x,y)$ is the orientation the robot (viewed as a nonholonomic cart)  should have in order to start walking along the shortest path to $q^s$, from its current position $(x,y)$. The pair $(v^*(x,y),\omega^*(x,y))$ are the instantaneous (reference) velocities needed to be applied to follow the shortest paths. Without loss of generality, we can suppose that $v^*(x,y)=0$ (for in-site rotations) or $v^*(x,y)=\pm 1$ (elsewhere). Given that the linear velocity $v^*(x,y)$, $\omega^*(x,y)$ is defined in function of the nature  of the path segment,
 $$
 \left\{
 \begin{array}{cccc}
@@ -56,9 +56,9 @@ $$
 \right.
 $$
 
-where $\phi_{max}$ is the maximal bearing angle possible for the landmark, given the sensor and robot characteristics.
+\noindent where $\phi_{max}$ is the maximal bearing angle possible for the landmark, given the sensor and robot characteristics.
 
-Our claim is that the knowledge of optimal policies at each point allows some flexibility when generating a walking pattern, by optimizing the footprint positions and  the CoM trajectory ``around'' the nominal path output from the planner, by using these policies within the pattern generation.
+Our claim is that the knowledge of optimal policies at each point provides flexibility when generating a walking pattern. This is achieved by optimizing the footprint positions and the CoM trajectory ``around'' the nominal path output from the planner. Which is done by using these policies within the pattern generation.
 
 \begin{figure}[h]
 \centering
@@ -69,7 +69,7 @@ Our claim is that the knowledge of optimal policies at each point allows some fl
 \label{fig:paths}}
 \end{figure}
 
-In pattern generation algorithms such as~\citep{HerdtAR2010}, the cost function within the Model Predictive Control (MPC) window uses the configurations of the CoM (see Chap.~\ref{Chap:Locomotion-Control}). Here, focusing more specifically on the $(x,y,\theta)$ CoM coordinates, we handle as an input of the algorithm a reference trajectory to be followed, and a synthesis of shortest paths leading to a given objective, as a direct output from~\citep{Salaris:2010}. As depicted in Fig.~\ref{fig:paths}, at each configuration evaluated within the MPC, two forces should apply through the optimization scheme: one driving the robot to the ``correct'' orientation $\theta^*(x,y)$, and one making the velocities follow the shortest path, $(v(x,y),\omega(x,y))$, so we can follow the trajectories according to the optimal synthesis. Also, a strong visibility constraint should apply, to ensure the object of interest to stay visible. In Fig.~\ref{fig:fieldNoLateral}, we give an illustration of the shortest paths synthesis from~\citep{Salaris:2010}, displayed through the local orientations of optimal paths at each point of the plane, given the objective to reach (``end point'') and the landmark to keep in sight. 
+In pattern generation algorithms such as~\citep{HerdtAR2010}, the cost function within the Model Predictive Control (MPC) window uses the configurations of the CoM (see Chap.~\ref{Chap:Locomotion-Control}). Here, focusing more specifically on the $(x,y,\theta)$ CoM coordinates, we use the reference trajectory to be followed as an input of the algorithm. And a synthesis of shortest paths leading to a given objective, as a direct output from~\citep{Salaris:2010}. As depicted in Fig.~\ref{fig:paths}, at each configuration evaluated within the MPC, two forces should apply through the optimization scheme: one driving the robot to the ``correct'' orientation $\theta^*(x,y)$, and one making the velocities follow the shortest path, $(v(x,y),\omega(x,y))$, so we can follow the trajectories according to the optimal synthesis. Also, a strong visibility constraint should apply, to ensure the object of interest to stay visible. In Fig.~\ref{fig:fieldNoLateral}, we give an illustration of the shortest paths synthesis from~\citep{Salaris:2010}, displayed through the local orientations of optimal paths at each point of the plane, given the objective to reach (``end point'') and the landmark to keep in sight. 
 
 
 %==================================================================
@@ -147,7 +147,7 @@ $$
 \end{array}
 $$
 
-that depends (non-linearly) on $x_l,y_l$. The idea is to use these -- variable -- reference velocities inside the terms of the pattern generator QP. However, as this mapping is non-linear, a direct use would make us lose the QP form, that allows an efficient resolution of the problem. Because the mapping $\theta^*(x,y)$ has not always an analytic form we evaluate it numerically on a fine scale grid inside the zone of operation of the robot, as pre-computed values, and we also estimate numerically the partial derivatives $\frac{\partial \theta^*(x,y)}{\partial x},  \frac{\partial \theta^*(x,y)}{\partial y}$.
+\noindent that depends non-linearly on $x_l,y_l$. The idea is to use these variable reference velocities inside the terms of the pattern generator QP. However, as this mapping is non-linear, a direct use would make us lose the QP form, that allows an efficient resolution of the problem. The mapping $\theta^*(x,y)$ has not always an analytic form, so we evaluate it numerically on a fine scale grid inside the area of operation of the robot, as pre-computed values. We also estimate numerically the partial derivatives $\frac{\partial \theta^*(x,y)}{\partial x},  \frac{\partial \theta^*(x,y)}{\partial y}$.
 
 This way, we can approximate each of these reference velocities, at time position $l$ within the optimization time window, by performing a linearization of $\theta^*$  around a reference position $(x^0,y^0)$, i.e.,
 $$
@@ -157,7 +157,7 @@ $$
 \end{array}
 $$
 
-Note that the linearization point $(x^0,y^0)$ is chosen in the aforementioned grid of pre-computed values $(\theta^*(x,y),\frac{\partial \theta^*(x,y)}{\partial x},  \frac{\partial \theta^*(x,y)}{\partial y})$, at the closest point to the first (current) CoM position. This grid is depicted in the background of Figs.~\ref{fig:steps6}, \ref{fig:field}, \ref{fig:steps10} among others. To simplify the notation, let us write
+Note that the linearization point $(x^0,y^0)$ is chosen in the aforementioned grid of pre-computed values $(\theta^*(x,y),\frac{\partial \theta^*(x,y)}{\partial x},  \frac{\partial \theta^*(x,y)}{\partial y})$, at the closest point to the first (current) CoM position. This grid is depicted in the background of Figs.~\ref{fig:field}, \ref{fig:steps6}, \ref{fig:steps10} among others. To simplify the notation, let us write
 $$
 \theta^0 \stackrel{\mbox{\tiny def}}{=}  \theta^*(x^0,y^0),\;
 \frac{\partial \theta^0}{\partial x} \stackrel{\mbox{\tiny def}}{=} \frac{\partial \theta^*(x^0,y^0)}{\partial x},\;
@@ -179,7 +179,7 @@ $$
 \right.
 $$ 
 
-and by stacking the errors within the horizon window as in Eq.~\ref{Eq:PosCMHorizon}, we get the following 
+\noindent and by stacking the errors within the horizon window as in Eq.~\ref{Eq:PosCMHorizon}, we get the following 
 linear relations
 
 {\small
@@ -192,7 +192,7 @@ linear relations
  \end{eqnarray}
 }
 
-where $A^0_{x},B^0_{x},A^0_{y},B^0_{y}$ are diagonal matrices collecting the terms $v\sin(\theta^0_l) \frac{\partial \theta^0_l}{\partial x}$ and alike. Then, the walking pattern generation is formulated exactly as in Eq.~\ref{Eq:MinJerk}, with the reference velocities given by Eq.~\ref{eq-velref-linear}, and with the optimization variable being $U(k)$,
+\noindent where $A^0_{x},B^0_{x},A^0_{y},B^0_{y}$ are diagonal matrices collecting the terms $v\sin(\theta^0_l) \frac{\partial \theta^0_l}{\partial x}$ and alike. Then, the walking pattern generation is formulated exactly as in Eq.~\ref{Eq:MinJerk}, with the reference velocities given by Eq.~\ref{eq-velref-linear}, and with the optimization variable being $U(k)$,
 %$U_{k} \stackrel{\mbox{\tiny def}}{=}  \left( (\dddot{C}_k^{x})^ \transpose, (X_{k}^{f})^ \transpose, (\dddot{C}_k^{y})^ \transpose, (Y_{k}^{f})^ \transpose \right)^{\transpose}$ 
 leading to a canonical Quadratic Program (QP) similar to Eq.~\ref{Eq:QP}.
 
@@ -209,10 +209,10 @@ leading to a canonical Quadratic Program (QP) similar to Eq.~\ref{Eq:QP}.
 
 % that can be expressed in terms of $U_{k} \stackrel{\mbox{\tiny def}}{=} \left( (\dddot{C}_k^{x})^ \transpose, (Z_{k+1}^{x_{ref}})^ \transpose, (\dddot{C}_k^{y})^ \transpose, (Z_{k+1}^{y_{ref}})^ \transpose \right)^{\transpose}$ by using Eq.~\ref{eq-velref-linear}, into a canonical Quadratic Program (QP) similar to Eq.~\ref{Eq:QP}.
 
-Non-linear constraints arise from the CoP position to be included in the support polygon. In this case, we set the robot and feet orientations as specified in next section and include the computed values into the QP.
+Non-linear constraints arise from the CoP position to be included in the support polygon. In this case, we set the robot and feet orientation as specified in next section and include the computed values into the QP.
 
 \subsection{Control of the rotation angle}
-In order for the robot to be oriented with the tangent to the optimal path, $\theta^0$, we use a decoupled approach in a very similar way as what we already described in Section~\ref{Chap:Locomotion-Control} for the control of the rotation angles of the trunk and the feet~\citep{HerdtIROS2010}. With this formulation, we also mantain the QP form. Hence, in a first stage, we optimize the orientations in the MPC time window by  
+To get the robot oriented with the tangent to the optimal path, $\theta^0$, we use a decoupled approach in a very similar way as what we already described in Section~\ref{Chap:Locomotion-Control} for the control of the rotation angles of the trunk and the feet~\citep{HerdtIROS2010}. With this formulation, we also mantain the QP form. Hence, in a first stage, we optimize the orientations in the MPC time window by  
 
 \begin{eqnarray}
 \nonumber
@@ -220,7 +220,7 @@ In order for the robot to be oriented with the tangent to the optimal path, $\th
 \nonumber && + \dfrac{\alpha}{2} \left\| \dddot{C}_{\theta}(k+1) \right\|^2 + \dfrac{\alpha}{2} \left\| \dddot{F}_{\theta}(k+1) \right\|^2,
 \end{eqnarray}
 
-and then in a second stage, we introduce these angles as constant in the main QP (Eq.~\ref{Eq:MinJerk}). This approach gives us the advantage of introducing constraints like maximum rotation between both feet, between feet and trunk and also a rotation limit to keep the visibility of the landmarks.
+\noindent and then in a second stage, we introduce these angles as constant in the main QP (Eq.~\ref{Eq:MinJerk}). This approach gives us the advantage of introducing constraints like maximum rotation between both feet, between feet and trunk and also a rotation limit to keep the visibility of the landmarks.
 
 %\subsection{Refinement of the angular position}
 
@@ -247,14 +247,14 @@ $$
 \end{array}
 $$
 
-and if the robot configuration is close to this locus, then we use instead lateral motions, with orientation $\phi(x_l,y_l)+\pi$, where $\phi(x_l,y_l)=\arctan\frac{y_l}{x_l}$ is the polar angle of $(x_l,y_l)$,
+\noindent and if the robot configuration is close to this locus, then we use instead lateral motions, with orientation $\phi(x_l,y_l)+\pi$, where $\phi(x_l,y_l)=\arctan\frac{y_l}{x_l}$ is the polar angle of $(x_l,y_l)$,
 $$
 \begin{array}{c}
 \dot{x}^{ref}_l  =  -\varepsilon\sin(\phi(x_l,y_l)) \;,\; \dot{y}^{ref}_l  =  \varepsilon\cos(\phi(x_l,y_l)),  \\
 \end{array}
 $$
 
-where $\varepsilon =\pm1$ in function of the relative position of the goal to reach with respect to the evaluated point. 
+\noindent where $\varepsilon =\pm1$ in function of the relative position of the goal to reach with respect to the evaluated point. 
 
 In Fig.~\ref{fig:fieldUseLateral}, we illustrate this modification by drawing the lateral motion field with blue arrows, together with the ``non holonomic'' field ``far'' from the locus of in-site rotations. 
 
@@ -325,4 +325,4 @@ To address the aforementioned problem, we present the results of the improvement
 \label{sec:conclusion}
 %=============================================================================================================================================================
 
-In most of the current literature, the link between planning and locomotion control has been given by footsteps. In this paper, we propose a novel approach that uses directly the optimal motion synthesis derived from the planner to the control system without going through footsteps but instead by computing them within the Walking Pattern Generator. With this approach, we can drive the robot to a desired goal by using an external planner, not necessarily the one used in this paper. We tested our approach simulating real situations such as situations with localization noise and sliding of the feet. We have also tried to make the walking pattern more efficient by introducing the possibility of using holonomic motion. Our next objective is to test the approach introduced in this paper on the HRP-2 platform.
+In most of the current literature, the link between planning and locomotion control has been given by footsteps. In this paper, we propose a novel approach that uses directly the optimal motion synthesis derived from the planner to the control system without going through footsteps. Instead we compute them within the Walking Pattern Generator. With this approach, we can drive the robot to a desired goal by using an external planner, not necessarily the one used in this paper. We tested our approach simulating real situations such as situations with localization noise and sliding of the feet. We have also tried to make the walking pattern more efficient by introducing the possibility of using holonomic motion. Our next objective is to test the approach introduced in this paper on the HRP-2 platform.
